@@ -141,10 +141,10 @@ export default function LandingPage() {
                 </div>
 
                 {/* Dashboard Mock Content */}
-                <div className="flex-1 p-8 flex gap-8 overflow-hidden">
+                <div className="flex-1 p-4 md:p-8 flex flex-col md:flex-row gap-8 overflow-y-auto md:overflow-hidden">
                   {/* Left Column: Stats & Charts */}
                   <div className="flex-1 space-y-8">
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       {[
                         { label: 'Links Capturados', value: '14,208', color: 'text-primary' },
                         { label: 'Sessões Ativas', value: '12', color: 'text-secondary' },
@@ -180,7 +180,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Right Column: Live Links Feed */}
-                  <div className="w-80 space-y-4">
+                  <div className="w-full md:w-80 space-y-4 shrink-0">
                     <span className="text-xs font-black uppercase tracking-widest text-white/30 px-2">Feed de Captura</span>
                     <div className="space-y-4">
                       {[
@@ -418,7 +418,7 @@ export default function LandingPage() {
               <p className="text-muted text-xl max-w-2xl mx-auto font-medium tracking-tight">Escolha a potência necessária para sua operação.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 { name: 'Starter', price: '47', desc: 'Para quem está começando a escalar.', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados', 'Captura Real-time', 'Suporte via Ticket'] },
                 { name: 'Professional', price: '97', desc: 'O equilíbrio perfeito para profissionais.', popular: true, features: ['3 Sessões WhatsApp', '50 Grupos Monitorados', 'AI Pattern Matching', 'Relatórios Avançados', 'Suporte Prioritário'] },
