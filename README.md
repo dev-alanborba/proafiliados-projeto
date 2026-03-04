@@ -4,6 +4,12 @@
   <h1>ProAfiliados ⚡ Motor de Conversão Automática</h1>
   <p><strong>A plataforma definitiva de monitoramento, conversão e disparo automático de tráfego para Afiliados e Coprodutores.</strong></p>
 
+  <a href="https://proafiliados-projeto-ww21.vercel.app/" target="_blank">
+    <img src="https://vercel.com/button" alt="Deploy with Vercel" />
+  </a>
+  <br/>
+  <br/>
+
   [![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)](#)
   [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](#)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
