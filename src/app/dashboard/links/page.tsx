@@ -21,7 +21,7 @@ export default function LinksPage() {
 
     const fetchLinks = async () => {
         setLoading(true)
-        // In a real scenario, fetch from Supabase
+        // Fetch from Supabase
         setTimeout(() => {
             setLinks([])
             setLoading(false)

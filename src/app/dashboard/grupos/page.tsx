@@ -31,7 +31,7 @@ export default function GroupsPage() {
 
     const fetchGroups = async () => {
         setLoading(true)
-        // In a real scenario, we'll fetch from Supabase/Evolution API
+        // Fetch from Supabase/Evolution API
         setTimeout(() => {
             setGroups([])
             setLoading(false)

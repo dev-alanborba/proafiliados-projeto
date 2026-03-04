@@ -88,5 +88,5 @@ Esteja certo de estar rodando as ferramentas corretas para Node.JS na versão 18
 ---
 
 <div align="center">
-    <i>Desenvolvido e operando a 100x com Next.js e Inteligência Algorítmica.</i>
+    <i>Desenvolvido e operando a 100x com arquitetura Next.js.</i>
 </div>
