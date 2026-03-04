@@ -1,0 +1,49 @@
+﻿
+> proafiliados@0.1.0 lint
+> eslint
+
+
+C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\src\app\api\whatsapp\qrcode\route.ts
+  29:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  44:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\src\app\cadastro\page.tsx
+   8:10  warning  'cn' is defined but never used             @typescript-eslint/no-unused-vars
+  26:17  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\src\app\dashboard\checkout\page.tsx
+   4:20  warning  'useEffect' is defined but never used    @typescript-eslint/no-unused-vars
+   7:5   warning  'CreditCard' is defined but never used   @typescript-eslint/no-unused-vars
+  14:5   warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+  15:5   warning  'Smartphone' is defined but never used   @typescript-eslint/no-unused-vars
+  17:10  warning  'cn' is defined but never used           @typescript-eslint/no-unused-vars
+
+C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\src\app\dashboard\grupos\page.tsx
+  12:5   warning  'Zap' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  14:10  warning  'createClient' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  18:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-explicit-any
+  32:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\src\app\dashboard\grupos\page.tsx:32:9
+  30 |
+  31 |     useEffect(() => {
+> 32 |         fetchGroups()
+     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |     }, [])
+  34 |
+  35 |     const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase()))  react-hooks/set-state-in-effect
+
+C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\src\app\dashboard\links\page.tsx
+  10:5   warning  'Filter' is defined but never used        @typescript-eslint/no-unused-vars
+  13:5   warning  'Search' is defined but never used        @typescript-eslint/no-unused-vars
+  16:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+  20:40  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 17 problems (4 errors, 13 warnings)
+
