@@ -1,148 +1,86 @@
-# ProAfiliados
+<div align="center">
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/zap.svg" width="80" alt="ProAfiliados Logo" />
+  <br/>
+  <h1>ProAfiliados ⚡ Motor de Conversão Automática</h1>
+  <p><strong>A plataforma definitiva de monitoramento, conversão e disparo automático de tráfego para Afiliados e Coprodutores.</strong></p>
 
-> Sistema de gestão e análise de vendas para afiliados digitais. Meu primeiro projeto como desenvolvedor, construído com Next.js, TypeScript e Supabase.
-
-## 🌟 Visão Geral
-
-ProAfiliados é uma aplicação web fullstack desenvolvida como meu primeiro grande projeto profissional como desenvolvedor. O sistema foi criado para centralizar, organizar e visualizar todos os dados importantes para um afiliado digital: campanhas, produtos, links, vendas e comissões.
-
-A aplicação combina uma **UI moderna com tema escuro**, **tipagem forte com TypeScript**, **autenticação segura** e **banco de dados bem estruturado** para oferecer uma experiência completa de gestão.
-
----
-
-## 🌮 O que o ProAfiliados faz
-
-- **Autenticação & Gerenciamento de Usuários**: Sistema de login seguro com Supabase Auth
-- **Gestão de Campanhas**: Organize suas campanhas de afiliado com facilidade
-- **Rastreamento de Vendas**: Registre vendas, comissões e acompanhe o desempenho em tempo real
-- **Análise de Métricas**: Cards e tabelas com dados de faturamento, ticket médio, taxa de conversão
-- **Interface Profissional**: UI responsiva com tema escuro, desenvolvida com Tailwind CSS
-- **Tipagem Completa**: Toda a aplicação desenvolvida com TypeScript rigoroso (strict mode)
+  [![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)](#)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](#)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
+  [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](#)
+  
+  <br/>
+</div>
 
 ---
 
-## 💻 Stack Tecnológico
+## 🚀 O que é o ProAfiliados?
 
-### Frontend
-- **Next.js 15+** (App Router) - Framework React moderno e performático
-- **React 19+** - Biblioteca UI
-- **TypeScript** - Tipagem estática forte em todo o código
-- **Tailwind CSS** - Estilização moderna e utilitária
-- **ESLint** - Lint rígido com enforceamento de tipos
+O **ProAfiliados** é um sistema completo em arquitetura SaaS focado em alavancar vendas orgânicas ou de grupos de tráfego pago através do WhatsApp. Diferente de monitores analíticos comuns, o coração dessa plataforma é um robô inteligente que intercepta ofertas de alta conversão de concorrentes, altera os links da oferta para o ID do seu afiliado, e repassa a oferta estruturada (Foto + Textos) perfeitamente para seus próprios grupos Vip.
 
-### Backend & Database
-- **Supabase** - PostgreSQL gerenciado + Autenticação + RLS
-- **PostgrSQL** - Banco de dados robusto e relacional
-- **Row Level Security (RLS)** - Segurança de dados em nível de banco
+Tudo isso abrigado dentro de um Dashboard Web Premium escuro e construído em tempo real para os clientes contratarem planos da sua ferramenta (via Mercado Pago) e plugar seus números WhatsApp de forma autônoma por QR Code usando um motor próprio (Evolution API).
 
-### Ferramentas & Configuração
-- **tsconfig.json** - Configuração TypeScript rigorosa (strict: true)
-- **next.config.ts** - Configuração otimizada de Next.js
-- **postcss** + **Tailwind CSS** - Processamento CSS moderno
+<br/>
 
----
+## 🎯 Arquitetura de Conversão (Webhook Engine)
 
-## 🚀 Iniciando o Projeto
+A essência do núcleo operacional roda pelo servidor invisível através do \`api/webhook/route.ts\`:
+1. **👂 Monitoramento:** O cliente delimita "Grupos Espiões". O webhook aguarda mensagens desses grupos de forma silenciosa e reativa;
+2. **🤖 Interceptação (Link Parse):** Qualquer mensagem com link detectado das plataformas parceiras (Shopee, Mercado Livre, Amazon, Hotmart) engatilha a segunda etapa;
+3. **🪄 Conversão Emocional:** O link hostil é destruído. Em seu lugar, a URL com a variável de afiliado (\`aff_id\`) do dono da sessão é montada e substituída diretamente no payload sem tocar no resto da copy (textos da mensagem);
+4. **📤 Despache (VIP Groups):** O disparo paralelo \`O(n)\` se inicia usando os despachantes \`sendText\` ou \`sendMedia\`, inundando todos os Canais e Grupos de Destino setados pelo usuário de uma só vez, preservando até mesmo as imagens e vídeos originais copiadas do concorrente.
 
-### Pré-requisitos
-- Node.js 18+ ou 20+
-- npm, yarn, pnpm ou bun
-- Conta Supabase (criar em https://supabase.com)
+<br/>
 
-### Instalação
+## 💎 Features da Interface Frontend
 
-```bash
-# Clone o repositório
-git clone https://github.com/dev-alanborba/proafiliados-projeto.git
-cd proafiliados-projeto
+- **Estética Ultra Premium:** Layout 100% Dark Theme (Glassmorfismo, Fronteiras Translúcidas, Gradientes Acentuados e Fontes Black/Itálicas modernas que valorizam o produto em `$5k/mês`);
+- **Onboarding de Checkout:** Planos (Starter, Pro, Elite), Pagamentos (Cartão/Pix via M. Pago) e Setup da Conta;
+- **Hub de Grupos:** Abas claras de Origem `[Espiões]` vs. Abas de Disparo `[Destino]`;
+- **Links Dashboard:** Feed Ao-Vivo das capturas feitas no dia atual pelo Worker API.
 
-# Instale as dependências
-npm install
-# ou
-yarn install
-# ou
-pnpm install
-```
+<br/>
 
-### Variáveis de Ambiente
+## 🛠️ Stack Tecnológico
 
-Crie um arquivo `.env.local` na raiz do projeto com as credenciais do Supabase:
+| Camada | Tecnologia Principal | Propósito |
+|---|---|---|
+| **Core UI** | Next.js 14 (App Router) + React | Renderização Server-Side / Client-Side de alta velocidade. |
+| **Pintura Visual** | Tailwind CSS + Lucide Icons | Utilitários diretos injetados na className garantindo 100% responsividade. |
+| **Banco e Auth** | Supabase (PostgreSQL) | Autenticação Mágica por E-mail do usuário e persistência das rotas e Grupos VIPs. |
+| **Aparelho Lógico** | Evolution API | Conexão Multi-Sessões de instâncias de WhatsApp no formato WebHook (Node.js). |
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://sua-instancia.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima
-```
+<br/>
 
-### Rodando em Desenvolvimento
+## ⚡ Como rodar o sistema localmente na sua máquina (Modo Dev)
 
-```bash
-npm run dev
-```
+Esteja certo de estar rodando as ferramentas corretas para Node.JS na versão 18+.
 
-Abra [http://localhost:3000](http://localhost:3000) no navegador.
+1. **Clone do Repositório**
+   \`\`\`bash
+   git clone https://github.com/dev-alanborba/proafiliados-projeto.git
+   cd proafiliados-projeto
+   \`\`\`
 
----
+2. **Instalação das dependências**
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-## 📄 Arquitetura do Projeto
+3. **Chaves (Ambiente .env)**
+   Crie um arquivo chamado \`.env.local\` seguindo a arquitetura de base do \`.env.example\` que já está na pasta. Você vai precisar inserir suas URLs do Supabase.
 
-```
-src/
-├─ app/
-│  ├─ (auth)/          # Páginas de autenticação (login/signup)
-│  ├─ (dashboard)/     # Rotas protegidas do painel principal
-│  ├─ layout.tsx       # Layout raiz
-│  ├─ page.tsx         # Página inicial
-│  └─ globals.css      # Estilos globais
-├─ components/        # Componentes React reutilizáveis
-├─ hooks/             # Custom hooks (useAuth, useFetch, etc)
-├─ lib/               # Funções utilitárias e helpers
-├─ types/             # Definições de tipos TypeScript
-└─ utils/             # Funções auxiliares
+4. **Inicie o Foguete**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+   
+5. A interface subirá instantaneamente na porta: \`http://localhost:3000\`.
 
-public/                   # Assets estáticos
-supabase_schema.sql       # Schema do banco de dados
-tsconfig.json             # Configurações TypeScript
-next.config.ts            # Configurações Next.js
-```
-
-### Schema do Banco de Dados
-
-O arquivo `supabase_schema.sql` contém:
-- Tabelas: `users`, `campaigns`, `products`, `sales`, `commissions`
-- Relações entre entidades
-- Políticas de Row Level Security (RLS)
-- Índices para performance
+<br/>
 
 ---
 
-## 📚 Aprendizados Principais
-
-Como primeiro projeto profissional como desenvolvedor, este projeto me ensinou:
-
-1. **Tipagem em TypeScript** - Uso rigoroso de tipos, interfaces e generics
-2. **Arquitetura de Componentes** - Organização e reutilização de código
-3. **Integração com Banco de Dados** - Queries, relações e segurança com RLS
-4. **Autenticação & Autorização** - Implementação segura com Supabase Auth
-5. **UI/UX Moderna** - Design com Tailwind CSS e tema escuro
-6. **Code Quality** - ESLint, commits estruturados, boas práticas
-
----
-
-## 🙋 Contribuções
-
-Este é um projeto pessoal em desenvolvimento. Sugestões e melhorias são bem-vindas!
-
----
-
-## 📄 Licença
-
-MIT - sinta-se livre para usar este projeto como referência para seus estudos.
-
----
-
-## 👇 Sobre Mim
-
-Sou Alan Borba, desenvolvedor em formação atuando como freelancer. Este projeto representa meu comprometimento com qualidade de código e boas práticas de desenvolvimento.
-
-- GitHub: [@dev-alanborba](https://github.com/dev-alanborba)
-- Estudando em: UNISC (Análise e Desenvolvimento de Sistemas)
+<div align="center">
+    <i>Desenvolvido e operando a 100x com Next.js e Inteligência Algorítmica.</i>
+</div>
