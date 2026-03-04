@@ -208,21 +208,18 @@ export default function LandingPage() {
         {/* Brand Bar - 3D Carousel Style */}
         <section className="py-20 border-y border-white/5 bg-white/[0.01] relative">
           <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-6 overflow-hidden">
-            <motion.div
-              animate={{ x: [0, -1000] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="flex items-center gap-32 whitespace-nowrap opacity-40"
-            >
-              {[1, 2, 3, 4].map((n) => (
+          <div className="max-w-7xl mx-auto overflow-hidden flex relative w-full">
+            <div className="flex items-center w-max animate-marquee opacity-40">
+              {/* Duplicamos o set de Marcas dentro de uma mesma linha para scroll infinito perfeito de 50% */}
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                 <React.Fragment key={n}>
-                  <span className="text-4xl font-black italic tracking-tighter text-white">SHOPEE</span>
-                  <span className="text-4xl font-black italic tracking-tighter text-white">MERCADO LIVRE</span>
-                  <span className="text-4xl font-black italic tracking-tighter text-white">AMAZON</span>
-                  <span className="text-4xl font-black italic tracking-tighter text-white">ALIEXPRESS</span>
+                  <span className="text-4xl px-16 font-black italic tracking-tighter text-white whitespace-nowrap">SHOPEE</span>
+                  <span className="text-4xl px-16 font-black italic tracking-tighter text-white whitespace-nowrap">MERCADO LIVRE</span>
+                  <span className="text-4xl px-16 font-black italic tracking-tighter text-white whitespace-nowrap">AMAZON</span>
+                  <span className="text-4xl px-16 font-black italic tracking-tighter text-white whitespace-nowrap">ALIEXPRESS</span>
                 </React.Fragment>
               ))}
-            </motion.div>
+            </div>
           </div>
         </section>
 
