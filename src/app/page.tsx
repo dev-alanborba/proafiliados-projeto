@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Check, Zap, Shield, BarChart3, Globe, Smartphone } from 'lucide-react'
+import { ArrowRight, Check, Zap, Shield, BarChart3, Globe, Smartphone, Users, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 
@@ -117,102 +117,91 @@ export default function LandingPage() {
             </motion.div>
           </div>
 
-          {/* Perspective Landing Preview (Rich Dashboard Mockup) */}
-          <div className="mt-32 w-full max-w-6xl mx-auto perspective-2000 px-6">
-            <motion.div
-              initial={{ opacity: 0, rotateX: 45, y: 100 }}
-              animate={{ opacity: 1, rotateX: 20, y: 0 }}
-              transition={{ duration: 1.5, delay: 1 }}
-              className="w-full aspect-video rounded-[3rem] border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent backdrop-blur-3xl p-1 relative group overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)]"
-            >
-              <div className="absolute inset-0 rounded-[inherit] pointer-events-none border border-white/[0.03] shadow-[inset_0_1px_1px_rgba(255, 255, 255, 0.05)]" />
-              <div className="w-full h-full rounded-[2.8rem] bg-[#050505] overflow-hidden flex flex-col relative">
-                {/* Browser Header */}
-                <div className="h-12 border-b border-white/5 bg-white/[0.02] flex items-center justify-between px-6">
-                  <div className="flex gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/20" />
-                  </div>
-                  <div className="px-4 py-1 bg-white/5 rounded-full border border-white/5 text-[10px] text-white/40 font-mono">
-                    app.proafiliados.com.br/dashboard
-                  </div>
-                  <div className="w-20" />
+          {/* Dynamic Engine Workflow (Replaces Static 3D Dashboard) */}
+          <div className="mt-32 w-full max-w-5xl mx-auto px-6 relative z-10">
+            <div className="absolute inset-0 bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
+
+            <div className="flex flex-col md:flex-row items-stretch justify-between gap-6 md:gap-8 relative">
+
+              {/* Connection Lines (Desktop only, absolute) */}
+              <div className="hidden md:flex absolute top-[40%] left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent -translate-y-1/2 z-0" />
+
+              {/* Step 1: Monitoramento */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="flex-1 bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10 p-8 rounded-[2rem] z-10 space-y-6 relative overflow-hidden group shadow-2xl"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center relative z-10">
+                  <Users className="w-6 h-6 text-white/70" />
                 </div>
+                <div className="relative z-10">
+                  <h3 className="text-xl font-black text-white">1. Grupos Espião</h3>
+                  <p className="text-sm text-muted mt-2 font-medium">O robô lê silenciosamente as milhares de ofertas enviadas pelos lojistas.</p>
+                </div>
+                {/* Anim Mock */}
+                <div className="mt-6 h-24 bg-white/[0.02] rounded-xl border border-white/5 p-4 flex flex-col justify-end relative overflow-hidden gap-2">
+                  <motion.div animate={{ y: [10, 0], opacity: [0, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }} className="w-full h-6 bg-white/10 rounded-lg flex items-center px-2">
+                    <div className="w-2 h-2 rounded-full bg-white/20" />
+                  </motion.div>
+                  <motion.div animate={{ y: [10, 0], opacity: [0, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5, ease: "easeOut" }} className="w-2/3 h-6 bg-white/5 rounded-lg flex items-center px-2">
+                    <div className="w-2 h-2 rounded-full bg-white/10" />
+                  </motion.div>
+                </div>
+              </motion.div>
 
-                {/* Dashboard Mock Content */}
-                <div className="flex-1 p-8 flex gap-8 overflow-hidden">
-                  {/* Left Column: Stats & Charts */}
-                  <div className="flex-1 space-y-8">
-                    <div className="grid grid-cols-3 gap-6">
-                      {[
-                        { label: 'Links Capturados', value: '14,208', color: 'text-primary' },
-                        { label: 'Sessões Ativas', value: '12', color: 'text-secondary' },
-                        { label: 'Conversão', value: '8.4%', color: 'text-white' }
-                      ].map((s, i) => (
-                        <div key={i} className="bg-white/[0.02] border border-white/5 p-6 rounded-3xl space-y-2">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">{s.label}</span>
-                          <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-                        </div>
-                      ))}
-                    </div>
+              {/* Step 2: Clonagem */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 1 }}
+                className="flex-1 bg-primary/10 backdrop-blur-2xl border border-primary/20 p-8 rounded-[2rem] z-10 space-y-6 relative overflow-hidden shadow-[0_0_50px_rgba(124,58,237,0.3)]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/30 rounded-full blur-3xl -mr-16 -mt-16" />
+                <div className="w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center relative z-10 shadow-lg shadow-primary/20">
+                  <Zap className="w-7 h-7 text-primary" />
+                </div>
+                <div className="relative z-10">
+                  <h3 className="text-xl font-black text-primary">2. Substituição</h3>
+                  <p className="text-sm text-primary/70 mt-2 font-medium">O link original é apagado. O seu Link de Afiliado é injetado no lugar em fração de segundos.</p>
+                </div>
+                {/* Anim Mock */}
+                <div className="mt-6 h-24 bg-primary/[0.05] rounded-xl border border-primary/20 p-4 flex items-center justify-center relative overflow-hidden">
+                  <RefreshCw className="w-10 h-10 text-primary animate-spin-slow" />
+                </div>
+              </motion.div>
 
-                    <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] flex-1 min-h-[200px] relative overflow-hidden group/chart">
-                      <div className="flex items-center justify-between mb-8">
-                        <span className="text-xs font-black uppercase tracking-widest text-white/70">Performance ao Vivo</span>
-                        <div className="flex gap-2">
-                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                          <span className="text-[10px] font-bold text-primary">REAL-TIME</span>
-                        </div>
-                      </div>
-                      <div className="flex items-end gap-3 h-32">
-                        {[40, 70, 45, 90, 65, 80, 55, 95, 75, 85, 60, 100].map((h, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ height: 0 }}
-                            animate={{ height: `${h}%` }}
-                            transition={{ duration: 1, delay: 1.5 + (i * 0.1) }}
-                            className="flex-1 bg-gradient-to-t from-primary/40 to-primary/10 rounded-t-lg border-x border-t border-primary/20"
-                          />
-                        ))}
-                      </div>
-                    </div>
+              {/* Step 3: Disparo */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.5 }}
+                className="flex-1 bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10 p-8 rounded-[2rem] z-10 space-y-6 relative overflow-hidden shadow-2xl"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+                <div className="w-14 h-14 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center relative z-10">
+                  <CheckCircle2 className="w-6 h-6 text-secondary" />
+                </div>
+                <div className="relative z-10">
+                  <h3 className="text-xl font-black text-white">3. Publicação</h3>
+                  <p className="text-sm text-muted mt-2 font-medium">A mensagem convertida, junto com a imagem original, cai direto nos seus Grupos VIP.</p>
+                </div>
+                {/* Anim Mock */}
+                <div className="mt-6 h-24 bg-white/[0.02] rounded-xl border border-white/5 p-4 flex items-center justify-start relative overflow-hidden gap-3">
+                  <div className="w-8 h-8 rounded-full bg-secondary/20 shrink-0 flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4 text-secondary" />
                   </div>
-
-                  {/* Right Column: Live Links Feed */}
-                  <div className="w-80 space-y-4">
-                    <span className="text-xs font-black uppercase tracking-widest text-white/30 px-2">Feed de Captura</span>
-                    <div className="space-y-4">
-                      {[
-                        { platform: 'SHOPEE', color: 'text-[#FF4500]', price: 'R$ 89,90' },
-                        { platform: 'MERCADO LIVRE', color: 'text-[#FFE600]', price: 'R$ 247,00' },
-                        { platform: 'AMAZON', color: 'text-[#FF9900]', price: 'R$ 1.200,00' }
-                      ].map((l, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 2 + (i * 0.2) }}
-                          className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl flex items-center gap-4 group/link hover:bg-white/[0.05] transition-colors"
-                        >
-                          <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[10px] font-black ${l.color}`}>
-                            {l.platform[0]}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-[10px] font-black text-white/40">{l.platform}</div>
-                            <div className="text-xs font-bold text-white tracking-tight">{l.price}</div>
-                          </div>
-                          <Zap className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </motion.div>
-                      ))}
-                    </div>
+                  <div className="w-full space-y-2">
+                    <div className="w-full h-2 bg-secondary/40 rounded-full" />
+                    <div className="w-2/3 h-2 bg-secondary/20 rounded-full" />
                   </div>
                 </div>
+              </motion.div>
 
-                {/* Decorative Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-30 pointer-events-none" />
-              </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
