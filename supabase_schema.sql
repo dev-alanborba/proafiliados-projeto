@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS public.groups (
   group_jid TEXT NOT NULL,
   name TEXT,
   is_monitored BOOLEAN DEFAULT TRUE,
+  is_destination BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(session_id, group_jid)
 );

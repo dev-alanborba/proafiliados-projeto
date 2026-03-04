@@ -9,7 +9,8 @@ import {
     RefreshCw,
     MessageSquare,
     Globe,
-    AlertCircle
+    AlertCircle,
+    Target
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -19,12 +20,14 @@ interface Group {
     monitored: boolean;
     members: number;
     lastMsg: string;
+    isDestination?: boolean;
 }
 
 export default function GroupsPage() {
     const [groups, setGroups] = useState<Group[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
+    const [tab, setTab] = useState<'origin' | 'destination'>('origin')
 
     const fetchGroups = async () => {
         setLoading(true)
@@ -39,7 +42,11 @@ export default function GroupsPage() {
         fetchGroups()
     }, [])
 
-    const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase()))
+    const filteredGroups = groups.filter(g => {
+        const matchesTab = tab === 'origin' ? !g.isDestination : g.isDestination
+        const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase())
+        return matchesTab && matchesSearch
+    })
 
     return (
         <div className="space-y-10 pb-10">
@@ -60,6 +67,28 @@ export default function GroupsPage() {
                     Atualizar Lista
                 </button>
             </header>
+
+            {/* Tabs for Origin vs Destination */}
+            <div className="flex gap-4 p-1 bg-white/5 border border-white/10 rounded-2xl w-fit">
+                <button
+                    onClick={() => setTab('origin')}
+                    className={cn(
+                        "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                        tab === 'origin' ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-muted hover:text-white"
+                    )}
+                >
+                    Grupos Espiões (Origem)
+                </button>
+                <button
+                    onClick={() => setTab('destination')}
+                    className={cn(
+                        "flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                        tab === 'destination' ? "bg-white text-black shadow-lg shadow-white/20" : "text-muted hover:text-white"
+                    )}
+                >
+                    <Target className="w-4 h-4" /> Seus Grupos VIP (Destino)
+                </button>
+            </div>
 
             <div className="glass-card p-4 rounded-2xl flex items-center gap-4 group relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
@@ -121,7 +150,7 @@ export default function GroupsPage() {
 
                             <div className="pt-4 flex gap-3 relative z-10">
                                 <button className="flex-grow py-3.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all shadow-lg">
-                                    Configurações
+                                    {tab === 'origin' ? 'Tornar Destino' : 'Remover Destino'}
                                 </button>
                                 <button className={cn(
                                     "p-3.5 rounded-2xl transition-all border shadow-lg group/btn",

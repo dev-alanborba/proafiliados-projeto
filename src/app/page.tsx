@@ -65,7 +65,7 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-2xl relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/60">Nova Era da Afiliação WhatsApp</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/60">O Clonador de Ofertas Definitivo</span>
               </div>
             </motion.div>
 
@@ -75,9 +75,9 @@ export default function LandingPage() {
               transition={{ duration: 1, delay: 0.2 }}
               className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.05em] leading-[0.9] text-white uppercase"
             >
-              Domine o <br />
+              Clone a <br />
               <span className="text-primary italic relative">
-                Lucro
+                Concorrência
                 <motion.div
                   initial={{ width: 0 }}
                   whileInView={{ width: "100%" }}
@@ -85,7 +85,7 @@ export default function LandingPage() {
                   className="absolute -bottom-4 left-0 h-3 bg-primary/20 blur-md rounded-full"
                 />
               </span> <br />
-              Automático
+              Venda no Automático
             </motion.h1>
 
             <motion.p
@@ -94,8 +94,8 @@ export default function LandingPage() {
               transition={{ duration: 1, delay: 0.5 }}
               className="text-lg md:text-2xl text-muted max-w-3xl mx-auto leading-relaxed font-medium tracking-tight"
             >
-              Monitoramento de links de alta performance para as maiores plataformas de afiliados do mundo. <br className="hidden md:block" />
-              Escale sua operação com <span className="text-white font-bold underline decoration-primary/50 decoration-4 underline-offset-8">zero intervenção manual</span>.
+              O robô escuta grupos 24h/dia, injeta o seu link de afiliado nas ofertas <br className="hidden md:block" />
+              e repassa a foto com o texto clonado para os seus Grupos VIP em <span className="text-white font-bold underline decoration-primary/50 decoration-4 underline-offset-8">frações de segundo</span>.
             </motion.p>
 
             <motion.div
@@ -265,8 +265,8 @@ export default function LandingPage() {
                   <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500">
                     <Zap className="w-8 h-8" />
                   </div>
-                  <h3 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-tight">Monitoramento <br /> de Fluxo Global</h3>
-                  <p className="text-muted text-lg max-w-md font-medium">Capture dados em tempo real de centenas de fontes simultâneas com latência zero.</p>
+                  <h3 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-tight">Clonagem e <br /> Troca de Links</h3>
+                  <p className="text-muted text-lg max-w-md font-medium">Extrai o link original (Shopee, Mercado Livre, Amazon), converte para o seu ID de afiliado e posta a mensagem perfeita.</p>
                 </div>
                 <div className="mt-12 relative h-80 w-full rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] p-1 shadow-inner">
                   <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
@@ -328,8 +328,8 @@ export default function LandingPage() {
                   <Globe className="w-6 h-6" />
                 </div>
                 <div className="space-y-4 relative z-10">
-                  <h3 className="text-3xl font-black text-white tracking-tight">IA de Matching</h3>
-                  <p className="text-muted font-medium text-sm leading-relaxed">Redes neurais treinadas para identificar links lucrativos e filtrar SPAM instantaneamente.</p>
+                  <h3 className="text-3xl font-black text-white tracking-tight">Cópia de Midia (Img/Vid)</h3>
+                  <p className="text-muted font-medium text-sm leading-relaxed">Não é só texto. O robô baixa a imagem/vídeo da oferta e anexa na mensagem de destino, como se fosse você enviando.</p>
                 </div>
 
                 {/* AI Visualization */}
@@ -369,7 +369,7 @@ export default function LandingPage() {
 
                 <div className="pt-8 border-t border-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-secondary px-2 py-1 bg-secondary/10 rounded-md">99.9% PRECISÃO</span>
+                    <span className="text-[10px] font-black text-secondary px-2 py-1 bg-secondary/10 rounded-md">ENVIO IMEDIATO</span>
                   </div>
                 </div>
               </motion.div>
@@ -384,8 +384,8 @@ export default function LandingPage() {
                   <BarChart3 className="w-6 h-6" />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-3xl font-black text-white tracking-tight">Relatórios Volumétricos</h3>
-                  <p className="text-muted font-medium text-sm leading-relaxed">Visualize cada byte capturado com dashboards de última geração e exportação instantânea.</p>
+                  <h3 className="text-3xl font-black text-white tracking-tighter">Conexão via QR Code</h3>
+                  <p className="text-muted font-medium text-sm leading-relaxed">Conecte o número do seu bot em segundos usando nosso servidor próprio da Evolution API. Escala multi-sessão.</p>
                 </div>
               </motion.div>
 
