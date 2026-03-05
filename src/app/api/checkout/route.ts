@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { createClient } from '@/lib/supabase-server';
 
 // Initialize the Mercado Pago client
@@ -10,45 +10,54 @@ export async function POST(request: Request) {
         const supabase = await createClient();
         const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-        if (userError || !user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        // if (userError || !user) {
+        //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        // }
+
+        const { planId, planName, planPrice, email, firstName, lastName, docNumber } = await request.json();
+
+        if (!planId || !planPrice) {
+            return NextResponse.json({ error: 'Faltando dados obrigatórios para gerar o PIX.' }, { status: 400 });
         }
 
-        const { planId, planName, planPrice } = await request.json();
+        const payment = new Payment(client);
 
-        if (!planId || !planName || !planPrice) {
-            return NextResponse.json({ error: 'Missing plan details' }, { status: 400 });
-        }
+        // Identificação default se usuário não preencher para testes
+        const payerEmail = email || user?.email || 'test_user_123@testuser.com';
+        const payerDoc = docNumber ? docNumber.replace(/\D/g, '') : '19119119100'; // CPF fictício que funciona no sandbox se vazio
 
-        const preference = new Preference(client);
-
-        const result = await preference.create({
+        const result = await payment.create({
             body: {
-                items: [
-                    {
-                        id: planId,
-                        title: `ProAfiliados - ${planName}`,
-                        quantity: 1,
-                        unit_price: Number(planPrice),
-                        currency_id: 'BRL',
-                    }
-                ],
+                transaction_amount: Number(planPrice),
+                description: `ProAfiliados - ${planName || 'Plano'}`,
+                payment_method_id: 'pix',
                 payer: {
-                    email: user.email,
+                    email: payerEmail,
+                    first_name: firstName || 'Usuário',
+                    last_name: lastName || 'ProAfiliados',
+                    identification: {
+                        type: 'CPF',
+                        number: payerDoc,
+                    }
                 },
-                external_reference: user.id, // Important: We use this in the webhook to know WHO paid
-                back_urls: {
-                    success: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?payment=success`,
-                    failure: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/checkout?payment=failure`,
-                    pending: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/checkout?payment=pending`,
-                },
-                auto_return: 'approved',
+                external_reference: user?.id || `user_guest_${Date.now()}`
             }
         });
 
-        return NextResponse.json({ init_point: result.init_point });
-    } catch (error) {
+        const qrCode = result.point_of_interaction?.transaction_data?.qr_code;
+        const qrCodeBase64 = result.point_of_interaction?.transaction_data?.qr_code_base64;
+
+        if (!qrCode || !qrCodeBase64) {
+            throw new Error('QR Code não retornado pela API do Mercado Pago');
+        }
+
+        return NextResponse.json({
+            id: result.id,
+            qr_code: qrCode,
+            qr_code_base64: qrCodeBase64
+        });
+    } catch (error: any) {
         console.error('Checkout API Error:', error);
-        return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Failed to create PIX payment' }, { status: 500 });
     }
 }

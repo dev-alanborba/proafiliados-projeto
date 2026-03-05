@@ -20,9 +20,10 @@ function CheckoutContent() {
     const planId = searchParams.get('plan') || 'starter'
 
     const [loading, setLoading] = useState(false)
-    const [status, setStatus] = useState<'pending' | 'processing' | 'success'>(
+    const [status, setStatus] = useState<'pending' | 'processing' | 'waiting_payment' | 'success'>(
         searchParams.get('payment') === 'success' ? 'success' : 'pending'
     )
+    const [qrCodeData, setQrCodeData] = useState<{ base64: string, copyPaste: string } | null>(null)
 
     const plans = {
         starter: { name: 'Starter', price: '47', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados'] },
@@ -49,20 +50,24 @@ function CheckoutContent() {
 
             const data = await res.json();
 
-            if (data.init_point) {
-                // Redirect to Mercado Pago Checkout
-                window.location.href = data.init_point;
+            if (data.qr_code && data.qr_code_base64) {
+                // Display QR Code on UI
+                setQrCodeData({
+                    base64: data.qr_code_base64,
+                    copyPaste: data.qr_code
+                });
+                setStatus('waiting_payment');
             } else {
-                console.error('Error generating checkout:', data);
+                console.error('Error generating PIX:', data);
                 setStatus('pending');
-                setLoading(false);
-                alert('Erro ao gerar link de pagamento. Tente novamente.');
+                alert('Erro ao gerar código PIX. Tente novamente.');
             }
         } catch (error) {
             console.error('Checkout error:', error);
             setStatus('pending');
-            setLoading(false);
             alert('Erro ao comunicar com o servidor. Tente novamente.');
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -138,20 +143,26 @@ function CheckoutContent() {
                     <p className="text-xs text-muted font-bold uppercase tracking-widest">Escaneie o QR Code abaixo</p>
                 </div>
 
-                {/* QR Code Placeholder (Awaiting API) */}
-                <div className="relative group relative z-10">
+                {/* QR Code Area */}
+                <div className="relative group relative z-10 w-full max-w-xs">
                     <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
-                    <div className="w-64 h-64 bg-black/40 border border-white/5 p-8 rounded-3xl shadow-2xl relative overflow-hidden flex flex-col items-center justify-center text-center gap-6 backdrop-blur-xl">
-                        <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center animate-pulse">
-                            <QrCode className="w-10 h-10 text-primary opacity-50" />
-                        </div>
+                    <div className="w-full bg-black/40 border border-white/5 p-6 rounded-3xl shadow-2xl relative overflow-hidden flex flex-col items-center justify-center text-center gap-6 backdrop-blur-xl">
+
+                        {qrCodeData ? (
+                            <img src={`data:image/jpeg;base64,${qrCodeData.base64}`} alt="QR Code PIX" className="w-48 h-48 rounded-xl object-contain bg-white p-2" />
+                        ) : (
+                            <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center animate-pulse mb-4">
+                                <QrCode className="w-10 h-10 text-primary opacity-50" />
+                            </div>
+                        )}
+
                         <div className="space-y-1">
-                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Aguardando API</p>
-                            <p className="text-[9px] text-muted font-bold uppercase tracking-widest leading-tight">O sistema de pagamentos será liberado em breve.</p>
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-                            <span className="text-[8px] font-black text-amber-500 uppercase">Ambiente de Testes</span>
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">
+                                {qrCodeData ? 'Aguardando Pagamento' : 'Aguardando API'}
+                            </p>
+                            <p className="text-[9px] text-muted font-bold uppercase tracking-widest leading-tight">
+                                {qrCodeData ? 'Abra o app do seu banco e escaneie' : 'O sistema de pagamentos será liberado em breve.'}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -159,28 +170,30 @@ function CheckoutContent() {
                 <div className="w-full space-y-4 relative z-10">
                     <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-center space-y-2">
                         <p className="text-[10px] font-black text-muted uppercase tracking-widest">Código Copia e Cola</p>
-                        <p className="text-[9px] font-mono text-white break-all opacity-50 select-all">
-                            00020101021226840014BR.GOV.BCB.PIX01362e49c71e-d4d1-443b-871d-727b13...
+                        <p className="text-[9px] font-mono text-white break-all opacity-80 select-all p-2 bg-white/5 rounded-lg border border-white/5 max-h-24 overflow-y-auto w-full mx-auto" style={{ wordBreak: 'break-all' }}>
+                            {qrCodeData ? qrCodeData.copyPaste : '00020101021226840014BR.GOV.BCB.PIX01362e49c71e-d4d1-443b-871d-727b13...'}
                         </p>
                     </div>
 
-                    <button
-                        onClick={handleConfirmPayment}
-                        disabled={loading || status === 'processing'}
-                        className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 group"
-                    >
-                        {status === 'processing' ? (
-                            <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                <span>Processando...</span>
-                            </>
-                        ) : (
-                            <>
-                                <span>Confirmar Pagamento</span>
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </>
-                        )}
-                    </button>
+                    {!qrCodeData && (
+                        <button
+                            onClick={handleConfirmPayment}
+                            disabled={loading || status === 'processing'}
+                            className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 group"
+                        >
+                            {status === 'processing' ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <span>Gerando PIX...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Gerar Código PIX</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                        </button>
+                    )}
 
                     <p className="text-[9px] text-center text-muted font-bold uppercase tracking-widest opacity-40">
                         A liberação ocorre em até 30 segundos após o PIX.
