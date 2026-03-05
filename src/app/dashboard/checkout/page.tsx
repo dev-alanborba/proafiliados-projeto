@@ -20,7 +20,9 @@ function CheckoutContent() {
     const planId = searchParams.get('plan') || 'starter'
 
     const [loading, setLoading] = useState(false)
-    const [status, setStatus] = useState<'pending' | 'processing' | 'success'>('pending')
+    const [status, setStatus] = useState<'pending' | 'processing' | 'success'>(
+        searchParams.get('payment') === 'success' ? 'success' : 'pending'
+    )
 
     const plans = {
         starter: { name: 'Starter', price: '47', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados'] },
@@ -34,28 +36,34 @@ function CheckoutContent() {
         setLoading(true)
         setStatus('processing')
 
-        // Simulating payment confirmation delay
-        setTimeout(async () => {
-            // In a real app, this would be updated via a Mercado Pago Webhook
-            // Here we manually update the user metadata as a "mock" activation
-            const { data: { user } } = await supabase.auth.getUser()
-
-            if (user) {
-                await supabase.auth.updateUser({
-                    data: {
-                        subscription_status: 'active',
-                        plan: planId
-                    }
+        try {
+            const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    planId,
+                    planName: currentPlan.name,
+                    planPrice: currentPlan.price,
                 })
+            });
+
+            const data = await res.json();
+
+            if (data.init_point) {
+                // Redirect to Mercado Pago Checkout
+                window.location.href = data.init_point;
+            } else {
+                console.error('Error generating checkout:', data);
+                setStatus('pending');
+                setLoading(false);
+                alert('Erro ao gerar link de pagamento. Tente novamente.');
             }
-
-            setStatus('success')
-            setLoading(false)
-
-            setTimeout(() => {
-                router.push('/dashboard')
-            }, 2000)
-        }, 3000)
+        } catch (error) {
+            console.error('Checkout error:', error);
+            setStatus('pending');
+            setLoading(false);
+            alert('Erro ao comunicar com o servidor. Tente novamente.');
+        }
     }
 
     if (status === 'success') {
@@ -158,7 +166,7 @@ function CheckoutContent() {
 
                     <button
                         onClick={handleConfirmPayment}
-                        disabled={loading}
+                        disabled={loading || status === 'processing'}
                         className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 group"
                     >
                         {status === 'processing' ? (
