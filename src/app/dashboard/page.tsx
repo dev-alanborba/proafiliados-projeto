@@ -16,6 +16,8 @@ import {
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
@@ -35,6 +37,7 @@ const PLANS = [
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
     const [isActive, setIsActive] = useState(false)
+    const [syncedAt, setSyncedAt] = useState<Date | null>(null)
     const [stats, setStats] = useState({
         totalLinks: 0,
         groups: 0,
@@ -51,6 +54,7 @@ export default function DashboardPage() {
 
             if (user) {
                 setIsActive(user.user_metadata?.subscription_status === 'active')
+                setSyncedAt(new Date())
 
                 // Real data fetching would go here. Using empty/initial states for demo.
                 setStats({
@@ -176,6 +180,8 @@ export default function DashboardPage() {
         { label: 'Taxa de Conversão', value: `${stats.conversions}%`, icon: TrendingUp, trend: '+0%', trendUp: true, color: 'secondary' },
     ], [stats])
 
+    const hasNoData = stats.totalLinks === 0 && stats.groups === 0 && stats.messages === 0
+
     return (
         <div className="flex-grow bg-[#050505] p-8 space-y-8 overflow-y-auto">
             {/* Header */}
@@ -190,7 +196,11 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2 px-5 py-3 bg-white/[0.02] border border-white/5 rounded-2xl backdrop-blur-3xl shadow-2xl">
                         <Clock className="w-4 h-4 text-muted" />
-                        <span className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Sincronizado: Agora</span>
+                        <span className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">
+                            {syncedAt
+                                ? `Sincronizado: ${format(syncedAt, "HH:mm 'de' dd/MM", { locale: ptBR })}`
+                                : 'Sincronizando...'}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -228,6 +238,40 @@ export default function DashboardPage() {
                     </motion.div>
                 ))}
             </div>
+
+            {/* Onboarding empty state */}
+            {hasNoData && (
+                <div className="bento-card p-10 space-y-8 relative overflow-hidden">
+                    <div className="inner-glow" />
+                    <div className="space-y-2 relative z-10">
+                        <h2 className="text-2xl font-black text-white uppercase tracking-tight italic">Primeiros Passos</h2>
+                        <p className="text-[10px] text-muted font-black uppercase tracking-widest">Complete os passos abaixo para começar a capturar links.</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-6 relative z-10">
+                        {[
+                            { step: '1', title: 'Conectar WhatsApp', desc: 'Vincule sua sessão para monitorar grupos em tempo real.', href: '/dashboard/whatsapp', icon: MessageSquare },
+                            { step: '2', title: 'Adicionar Grupos', desc: 'Selecione os grupos de origem onde os links serão capturados.', href: '/dashboard/grupos', icon: Users },
+                            { step: '3', title: 'Configurar Links', desc: 'Defina os links de destino que serão substituídos automaticamente.', href: '/dashboard/links', icon: Link2 },
+                        ].map(({ step, title, desc, href, icon: Icon }) => (
+                            <Link
+                                key={step}
+                                href={href}
+                                className="flex flex-col gap-4 p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-primary/[0.04] hover:border-primary/20 transition-all group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-[10px] font-black text-primary">{step}</span>
+                                    <Icon className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs font-black text-white uppercase tracking-wider">{title}</p>
+                                    <p className="text-[9px] text-muted font-bold leading-relaxed uppercase">{desc}</p>
+                                </div>
+                                <span className="text-[9px] font-black text-primary uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Acessar →</span>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">

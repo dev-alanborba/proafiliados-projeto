@@ -19,11 +19,11 @@ import { createClient } from '../lib/supabase'
 const supabase = createClient()
 
 const menuItems = [
-    { label: 'Visão Geral', icon: LayoutDashboard, href: '/dashboard' },
-    { label: 'WhatsApp', icon: MessageSquare, href: '/dashboard/whatsapp' },
-    { label: 'Grupos', icon: Users, href: '/dashboard/grupos' },
-    { label: 'Links', icon: Link2, href: '/dashboard/links' },
-    { label: 'Relatórios', icon: BarChart3, href: '/dashboard/relatorios' },
+    { label: 'Visão Geral', mobileLabel: 'Início', icon: LayoutDashboard, href: '/dashboard' },
+    { label: 'WhatsApp', mobileLabel: 'WA', icon: MessageSquare, href: '/dashboard/whatsapp' },
+    { label: 'Grupos', mobileLabel: 'Grupos', icon: Users, href: '/dashboard/grupos' },
+    { label: 'Links', mobileLabel: 'Links', icon: Link2, href: '/dashboard/links' },
+    { label: 'Relatórios', mobileLabel: 'Stats', icon: BarChart3, href: '/dashboard/relatorios' },
 ]
 
 function SidebarComponent() {
@@ -88,6 +88,7 @@ function SidebarComponent() {
                                 <Link
                                     key={item.href}
                                     href={item.href}
+                                    aria-current={isActive ? 'page' : undefined}
                                     className={cn(
                                         "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group relative overflow-hidden",
                                         isActive
@@ -165,6 +166,7 @@ function SidebarComponent() {
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                aria-current={isActive ? 'page' : undefined}
                                 className="flex flex-col items-center gap-1.5 p-2 rounded-xl relative group w-16"
                             >
                                 <div className={cn(
@@ -183,7 +185,7 @@ function SidebarComponent() {
                                     "text-[9px] font-bold tracking-tight text-center w-full truncate",
                                     isActive ? "text-white" : "text-muted/60"
                                 )}>
-                                    {item.label.split(' ')[0]} {/* Shortens name for mobile */}
+                                    {item.mobileLabel}
                                 </span>
                             </Link>
                         )
