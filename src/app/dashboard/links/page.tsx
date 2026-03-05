@@ -17,7 +17,14 @@ import { Toast } from '@/components/Toast'
 const PLATFORMS = ['All', 'Shopee', 'Mercado Livre', 'Amazon']
 
 export default function LinksPage() {
-    const [links, setLinks] = useState<{ id: string, url: string, original_url: string, short_url: string, clicks: number, created_at: string, platform?: string, title?: string, group?: string, sender?: string, date?: string }[]>([])
+    const [links, setLinks] = useState<{
+        id: string
+        link_url: string
+        platform?: string
+        sender_name?: string
+        group_jid?: string
+        created_at: string
+    }[]>([])
     const [loading, setLoading] = useState(true)
     const [copiedId, setCopiedId] = useState<string | null>(null)
     const [filter, setFilter] = useState('All')
@@ -25,16 +32,19 @@ export default function LinksPage() {
 
     const fetchLinks = useCallback(async () => {
         setLoading(true)
-        // Fetch from Supabase
-        setTimeout(() => {
+        try {
+            const params = filter !== 'All' ? `?platform=${encodeURIComponent(filter)}` : ''
+            const res = await fetch(`/api/links${params}`)
+            if (!res.ok) throw new Error('Erro na resposta da API')
+            const data = await res.json()
+            setLinks(data.links ?? [])
+        } catch {
+            setToast({ message: 'Erro ao carregar links. Tente novamente.', type: 'error' })
             setLinks([])
+        } finally {
             setLoading(false)
-        }, 500)
-    }, [])
-
-    useEffect(() => {
-        fetchLinks()
-    }, [fetchLinks])
+        }
+    }, [filter])
 
     const handleCopy = useCallback(async (url: string, id: string) => {
         try {
@@ -59,10 +69,10 @@ export default function LinksPage() {
         }
     }, [])
 
-    const filteredLinks = useMemo(
-        () => filter === 'All' ? links : links.filter(l => l.platform === filter),
-        [filter, links]
-    )
+    // Re-fetch when filter changes (server-side filtering)
+    useEffect(() => { fetchLinks() }, [fetchLinks])
+
+    const filteredLinks = links
 
     return (
         <div className="space-y-10 pb-10">
@@ -118,20 +128,31 @@ export default function LinksPage() {
 
                                 <div className="min-w-0 space-y-1.5">
                                     <div className="flex items-center gap-3">
-                                        <h3 className="text-lg font-black truncate text-white tracking-tight">{link.title}</h3>
-                                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-white/5 text-muted border border-white/10 uppercase tracking-widest">
-                                            {link.platform}
-                                        </span>
+                                        <h3 className="text-lg font-black truncate text-white tracking-tight max-w-[240px]"
+                                            title={link.link_url}
+                                        >
+                                            {link.link_url}
+                                        </h3>
+                                        {link.platform && (
+                                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-white/5 text-muted border border-white/10 uppercase tracking-widest shrink-0">
+                                                {link.platform}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
+                                        {link.group_jid && (
+                                            <div className="text-xs text-muted font-bold flex items-center gap-1.5">
+                                                <Hash className="w-3.5 h-3.5 text-primary" /> {link.group_jid.split('@')[0]}
+                                            </div>
+                                        )}
+                                        {link.sender_name && (
+                                            <div className="text-xs text-muted font-bold flex items-center gap-1.5">
+                                                <User className="w-3.5 h-3.5 text-secondary" /> {link.sender_name}
+                                            </div>
+                                        )}
                                         <div className="text-xs text-muted font-bold flex items-center gap-1.5">
-                                            <Hash className="w-3.5 h-3.5 text-primary" /> {link.group}
-                                        </div>
-                                        <div className="text-xs text-muted font-bold flex items-center gap-1.5">
-                                            <User className="w-3.5 h-3.5 text-secondary" /> {link.sender}
-                                        </div>
-                                        <div className="text-xs text-muted font-bold flex items-center gap-1.5">
-                                            <Calendar className="w-3.5 h-3.5 opacity-50" /> {link.date}
+                                            <Calendar className="w-3.5 h-3.5 opacity-50" />
+                                            {new Date(link.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
                                 </div>
@@ -139,14 +160,14 @@ export default function LinksPage() {
 
                             <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0 relative z-10">
                                 <button
-                                    onClick={() => handleCopy(link.url, link.id)}
+                                    onClick={() => handleCopy(link.link_url, link.id)}
                                     className="flex-grow md:flex-initial flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-xs font-black uppercase tracking-widest shadow-xl"
                                 >
                                     {copiedId === link.id ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                                     {copiedId === link.id ? 'Copiado' : 'Link'}
                                 </button>
                                 <a
-                                    href={link.url}
+                                    href={link.link_url}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="flex-grow md:flex-initial flex items-center justify-center gap-2.5 px-6 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20"

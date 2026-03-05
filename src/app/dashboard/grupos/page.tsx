@@ -36,11 +36,17 @@ export default function GroupsPage() {
 
     const fetchGroups = useCallback(async () => {
         setLoading(true)
-        // Fetch from Supabase/Evolution API
-        setTimeout(() => {
+        try {
+            const res = await fetch('/api/whatsapp/groups')
+            if (!res.ok) throw new Error('Erro na resposta da API')
+            const data = await res.json()
+            setGroups(data.groups ?? [])
+        } catch {
+            setToast({ message: 'Erro ao carregar grupos. Tente novamente.', type: 'error' })
             setGroups([])
+        } finally {
             setLoading(false)
-        }, 500)
+        }
     }, [])
 
     useEffect(() => {
@@ -55,11 +61,16 @@ export default function GroupsPage() {
 
     const handleToggleMonitor = useCallback(async (group: Group) => {
         setLoadingIds(prev => new Set(prev).add(group.id))
+        const newValue = !group.monitored
         try {
-            // Toggle monitored status (API call goes here)
-            await new Promise(r => setTimeout(r, 400))
-            setGroups(prev => prev.map(g => g.id === group.id ? { ...g, monitored: !g.monitored } : g))
-            setToast({ message: group.monitored ? 'Monitoramento pausado.' : 'Grupo ativado para monitoramento!', type: group.monitored ? 'info' : 'success' })
+            const res = await fetch('/api/whatsapp/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ group_jid: group.id, group_name: group.name, field: 'monitored', value: newValue }),
+            })
+            if (!res.ok) throw new Error()
+            setGroups(prev => prev.map(g => g.id === group.id ? { ...g, monitored: newValue } : g))
+            setToast({ message: newValue ? 'Grupo ativado para monitoramento!' : 'Monitoramento pausado.', type: newValue ? 'success' : 'info' })
         } catch {
             setToast({ message: 'Erro ao atualizar grupo. Tente novamente.', type: 'error' })
         } finally {
@@ -75,7 +86,12 @@ export default function GroupsPage() {
         }
         setLoadingIds(prev => new Set(prev).add(`dest-${group.id}`))
         try {
-            await new Promise(r => setTimeout(r, 400))
+            const res = await fetch('/api/whatsapp/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ group_jid: group.id, group_name: group.name, field: 'is_destination', value: true }),
+            })
+            if (!res.ok) throw new Error()
             setGroups(prev => prev.map(g => g.id === group.id ? { ...g, isDestination: true } : g))
             setToast({ message: `"${group.name}" adicionado como grupo destino!`, type: 'success' })
         } catch {
@@ -91,7 +107,12 @@ export default function GroupsPage() {
         setConfirmTarget(null)
         setLoadingIds(prev => new Set(prev).add(`dest-${group.id}`))
         try {
-            await new Promise(r => setTimeout(r, 400))
+            const res = await fetch('/api/whatsapp/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ group_jid: group.id, group_name: group.name, field: 'is_destination', value: false }),
+            })
+            if (!res.ok) throw new Error()
             setGroups(prev => prev.map(g => g.id === group.id ? { ...g, isDestination: false } : g))
             setToast({ message: `"${group.name}" removido dos grupos destino.`, type: 'info' })
         } catch {

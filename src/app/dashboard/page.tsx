@@ -38,13 +38,10 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
     const [isActive, setIsActive] = useState(false)
     const [syncedAt, setSyncedAt] = useState<Date | null>(null)
-    const [stats, setStats] = useState({
-        totalLinks: 0,
-        groups: 0,
-        messages: 0,
-        conversions: 0
-    })
-    const [recentLinks, setRecentLinks] = useState([])
+    const [stats, setStats] = useState({ totalLinks: 0, groups: 0, messages: 0, conversions: 0 })
+    const [recentLinks, setRecentLinks] = useState<{
+        id: string; link_url: string; platform?: string; group_jid?: string; created_at: string
+    }[]>([])
     const [chartData, setChartData] = useState<{ name: string; links: number }[]>([])
 
     useEffect(() => {
@@ -54,29 +51,52 @@ export default function DashboardPage() {
 
             if (user) {
                 setIsActive(user.user_metadata?.subscription_status === 'active')
-                setSyncedAt(new Date())
 
-                // Real data fetching would go here. Using empty/initial states for demo.
-                setStats({
-                    totalLinks: 0,
-                    groups: 0,
-                    messages: 0,
-                    conversions: 0
-                })
-                setRecentLinks([])
-                setChartData([
-                    { name: '00:00', links: 0 },
-                    { name: '04:00', links: 0 },
-                    { name: '08:00', links: 0 },
-                    { name: '12:00', links: 0 },
-                    { name: '16:00', links: 0 },
-                    { name: '20:00', links: 0 },
-                    { name: '23:59', links: 0 }
-                ])
+                // Fetch real stats from API
+                try {
+                    const [statsRes, linksRes] = await Promise.all([
+                        fetch('/api/stats'),
+                        fetch('/api/links'),
+                    ])
+                    if (statsRes.ok) {
+                        const statsData = await statsRes.json()
+                        setStats(prev => ({
+                            ...prev,
+                            totalLinks: statsData.totalLinks ?? 0,
+                            groups: statsData.groups ?? 0,
+                        }))
+                        setChartData(statsData.chartData ?? [])
+                    }
+                    if (linksRes.ok) {
+                        const linksData = await linksRes.json()
+                        setRecentLinks((linksData.links ?? []).slice(0, 10))
+                    }
+                } catch {
+                    // Non-fatal: stats stay at zero
+                }
+
+                setSyncedAt(new Date())
             }
             setLoading(false)
         }
         fetchDashboardData()
+    }, [])
+
+    // Supabase Realtime: listen for new captured_links and update live
+    useEffect(() => {
+        const channel = supabase
+            .channel('dashboard_captured_links')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'captured_links' },
+                (payload) => {
+                    const newLink = payload.new as { id: string; link_url: string; platform?: string; group_jid?: string; created_at: string }
+                    setRecentLinks(prev => [newLink, ...prev].slice(0, 10))
+                    setStats(prev => ({ ...prev, totalLinks: prev.totalLinks + 1 }))
+                }
+            )
+            .subscribe()
+        return () => { supabase.removeChannel(channel) }
     }, [])
 
     if (loading) {
@@ -309,9 +329,9 @@ export default function DashboardPage() {
 
                     <div className="space-y-4 relative z-10 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                         {recentLinks.length > 0 ? (
-                            recentLinks.map((link: { original_url: string, short_url: string, clicks: number, created_at: string, group_name?: string, platform?: string, time?: string }, i: number) => (
+                            recentLinks.map((link, i) => (
                                 <motion.div
-                                    key={i}
+                                    key={link.id ?? i}
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.05 }}
@@ -322,13 +342,23 @@ export default function DashboardPage() {
                                             <Zap className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-white truncate max-w-[120px] uppercase italic">Link Detectado</p>
-                                            <p className="text-[9px] text-muted font-bold tracking-tight uppercase">Grupo: {link.group_name}</p>
+                                            <p className="text-xs font-black text-white truncate max-w-[120px] uppercase italic" title={link.link_url}>
+                                                {link.link_url.replace(/^https?:\/\//, '').split('/')[0]}
+                                            </p>
+                                            {link.group_jid && (
+                                                <p className="text-[9px] text-muted font-bold tracking-tight uppercase">
+                                                    Grupo: {link.group_jid.split('@')[0]}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <span className="text-[9px] font-black text-primary px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/20 uppercase">{link.platform}</span>
-                                        <p className="text-[9px] text-muted font-bold mt-1 uppercase italic tracking-tighter">{link.time}</p>
+                                        {link.platform && (
+                                            <span className="text-[9px] font-black text-primary px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/20 uppercase">{link.platform}</span>
+                                        )}
+                                        <p className="text-[9px] text-muted font-bold mt-1 uppercase italic tracking-tighter">
+                                            {new Date(link.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
                                     </div>
                                 </motion.div>
                             ))

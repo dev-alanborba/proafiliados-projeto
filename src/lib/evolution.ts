@@ -1,5 +1,18 @@
 import axios from 'axios'
 
+export interface EvolutionGroup {
+    id: string          // JID format: digits@g.us
+    subject: string     // Group name
+    subjectOwner?: string
+    subjectTime?: number
+    size?: number       // Member count
+    creation?: number
+    owner?: string
+    desc?: string
+    announce?: boolean
+    restrict?: boolean
+}
+
 const evolutionApi = axios.create({
     baseURL: process.env.EVOLUTION_API_URL,
     headers: {
@@ -72,6 +85,15 @@ export const evolution = {
             }
         })
         return data
+    },
+
+    // Method to fetch all groups for an instance
+    getGroups: async (instanceName: string) => {
+        validateInstanceName(instanceName)
+        const { data } = await evolutionApi.get(`/group/fetchAllGroups/${instanceName}`, {
+            params: { getParticipants: false }
+        })
+        return data as EvolutionGroup[]
     },
 
     // Method to send media (images/videos)
