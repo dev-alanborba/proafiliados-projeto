@@ -11,7 +11,8 @@ import {
     Link2,
     BarChart3,
     LogOut,
-    Zap
+    Zap,
+    CalendarClock
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { createClient } from '../lib/supabase'
@@ -29,12 +30,23 @@ const menuItems = [
 function SidebarComponent() {
     const pathname = usePathname()
     const [userMetadata, setUserMetadata] = useState<{ full_name?: string, selected_plan?: string, subscription_status?: string } | null>(null)
+    const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
                 setUserMetadata(user.user_metadata)
+
+                // Fetch expiration date from profiles table
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('subscription_expires_at')
+                    .eq('id', user.id)
+                    .single()
+                if (profile?.subscription_expires_at) {
+                    setSubscriptionExpiresAt(profile.subscription_expires_at)
+                }
             }
         }
         fetchUser()
@@ -136,6 +148,17 @@ function SidebarComponent() {
                                     )}
                                 />
                             </div>
+                            {subscriptionStatus === 'active' && subscriptionExpiresAt && (
+                                <div className="flex items-center gap-2 p-2.5 bg-white/[0.03] border border-white/5 rounded-xl">
+                                    <CalendarClock className="w-3.5 h-3.5 text-primary shrink-0" />
+                                    <div>
+                                        <p className="text-[8px] font-black text-muted uppercase tracking-widest">Renovação em</p>
+                                        <p className="text-[11px] font-black text-white tracking-tight">
+                                            {new Date(subscriptionExpiresAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                             <p className="text-[9px] font-bold text-muted leading-relaxed">
                                 {subscriptionStatus === 'active'
                                     ? 'Todos os sistemas estão operando em regime de alta performance.'

@@ -11,7 +11,8 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     ShieldCheck,
-    AlertCircle
+    AlertCircle,
+    CalendarClock
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -37,6 +38,7 @@ const PLANS = [
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
     const [isActive, setIsActive] = useState(false)
+    const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<string | null>(null)
     const [syncedAt, setSyncedAt] = useState<Date | null>(null)
     const [stats, setStats] = useState({ totalLinks: 0, groups: 0, messages: 0, conversions: 0 })
     const [recentLinks, setRecentLinks] = useState<{
@@ -51,6 +53,16 @@ export default function DashboardPage() {
 
             if (user) {
                 setIsActive(user.user_metadata?.subscription_status === 'active')
+
+                // Fetch subscription expiration date from profiles
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('subscription_expires_at')
+                    .eq('id', user.id)
+                    .single()
+                if (profile?.subscription_expires_at) {
+                    setSubscriptionExpiresAt(profile.subscription_expires_at)
+                }
 
                 // Fetch real stats from API
                 try {
@@ -228,7 +240,15 @@ export default function DashboardPage() {
                         <p className="text-muted font-black text-[10px] uppercase tracking-widest">Sistemas Operantes em regime de alta performance</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-wrap">
+                    {subscriptionExpiresAt && (
+                        <div className="flex items-center gap-2 px-5 py-3 bg-primary/[0.04] border border-primary/10 rounded-2xl backdrop-blur-3xl shadow-2xl">
+                            <CalendarClock className="w-4 h-4 text-primary" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
+                                Renovação: {format(new Date(subscriptionExpiresAt), "dd/MM/yyyy", { locale: ptBR })}
+                            </span>
+                        </div>
+                    )}
                     <div className="flex items-center gap-2 px-5 py-3 bg-white/[0.02] border border-white/5 rounded-2xl backdrop-blur-3xl shadow-2xl">
                         <Clock className="w-4 h-4 text-muted" />
                         <span className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">

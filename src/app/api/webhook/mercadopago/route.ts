@@ -43,13 +43,18 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Invalid External Reference' }, { status: 400 });
             }
 
+            // Calculate subscription expiration: 30 days from now
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 30);
+
             // Automatically Upgrade User's Subscription using Database Function or direct UPDATE
-            // Ensure the "users" or "profiles" table has 'subscription_status' and 'plan_type'
+            // Ensure the "users" or "profiles" table has 'subscription_status', 'plan_type', and 'subscription_expires_at'
             const { error } = await supabaseAdmin
-                .from('profiles') // Adjust based on the actual table name (users/profiles/subscriptions)
+                .from('profiles')
                 .update({
                     subscription_status: 'active',
                     plan_type: newPlanId,
+                    subscription_expires_at: expiresAt.toISOString(),
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', userId);

@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   full_name TEXT,
   avatar_url TEXT,
   email TEXT,
+  subscription_status TEXT DEFAULT 'inactive',
+  plan_type TEXT,
+  subscription_expires_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
