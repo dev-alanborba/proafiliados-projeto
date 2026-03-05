@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
     Link2,
     ExternalLink,
@@ -13,33 +13,37 @@ import {
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
+const PLATFORMS = ['All', 'Shopee', 'Mercado Livre', 'Amazon']
+
 export default function LinksPage() {
     const [links, setLinks] = useState<{ id: string, url: string, original_url: string, short_url: string, clicks: number, created_at: string, platform?: string, title?: string, group?: string, sender?: string, date?: string }[]>([])
     const [loading, setLoading] = useState(true)
     const [copiedId, setCopiedId] = useState<string | null>(null)
     const [filter, setFilter] = useState('All')
 
-    const fetchLinks = async () => {
+    const fetchLinks = useCallback(async () => {
         setLoading(true)
         // Fetch from Supabase
         setTimeout(() => {
             setLinks([])
             setLoading(false)
         }, 500)
-    }
+    }, [])
 
     useEffect(() => {
         fetchLinks()
-    }, [])
+    }, [fetchLinks])
 
-    const handleCopy = (url: string, id: string) => {
+    const handleCopy = useCallback((url: string, id: string) => {
         navigator.clipboard.writeText(url)
         setCopiedId(id)
         setTimeout(() => setCopiedId(null), 2000)
-    }
+    }, [])
 
-    const platforms = ['All', 'Shopee', 'Mercado Livre', 'Amazon']
-    const filteredLinks = filter === 'All' ? links : links.filter(l => l.platform === filter)
+    const filteredLinks = useMemo(
+        () => filter === 'All' ? links : links.filter(l => l.platform === filter),
+        [filter, links]
+    )
 
     return (
         <div className="space-y-10 pb-10">
@@ -53,7 +57,7 @@ export default function LinksPage() {
                 </div>
 
                 <div className="flex items-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md overflow-x-auto max-w-full">
-                    {platforms.map(p => (
+                    {PLATFORMS.map(p => (
                         <button
                             key={p}
                             onClick={() => setFilter(p)}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -26,7 +26,7 @@ const menuItems = [
     { label: 'Relatórios', icon: BarChart3, href: '/dashboard/relatorios' },
 ]
 
-export function Sidebar() {
+function SidebarComponent() {
     const pathname = usePathname()
     const [userMetadata, setUserMetadata] = useState<{ full_name?: string, selected_plan?: string, subscription_status?: string } | null>(null)
 
@@ -38,13 +38,12 @@ export function Sidebar() {
             }
         }
         fetchUser()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [supabase])
+    }, [])
 
-    const handleSignOut = async () => {
+    const handleSignOut = useCallback(async () => {
         await supabase.auth.signOut()
         window.location.href = '/'
-    }
+    }, [])
 
     const planName = userMetadata?.selected_plan || 'Nenhum'
     const subscriptionStatus = userMetadata?.subscription_status === 'active' ? 'active' : 'pending'
@@ -157,7 +156,7 @@ export function Sidebar() {
                 </div>
             </aside>
 
-            {/* --- MOBILE BOTTOM NAVIGATION BAR --- */}
+            {/* --- MOBILE BOTTOM NAV --- */}
             <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-[#050505]/80 backdrop-blur-2xl border-t border-white/10 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.8)]">
                 <div className="flex items-center justify-around px-2 py-3">
                     {menuItems.map((item) => {
@@ -194,3 +193,5 @@ export function Sidebar() {
         </>
     )
 }
+
+export const Sidebar = memo(SidebarComponent)

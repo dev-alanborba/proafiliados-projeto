@@ -153,10 +153,10 @@ export default function WhatsAppPage() {
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={step}
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 1.05, y: -20 }}
-                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -16 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
                             className="glass-card rounded-[3rem] p-12 min-h-[500px] flex flex-col items-center justify-center text-center relative overflow-hidden group/card shadow-2xl"
                         >
                             <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full translate-y-1/2 pointer-events-none" />

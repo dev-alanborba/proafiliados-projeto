@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
     Users,
     Search,
@@ -28,24 +28,24 @@ export default function GroupsPage() {
     const [search, setSearch] = useState('')
     const [tab, setTab] = useState<'origin' | 'destination'>('origin')
 
-    const fetchGroups = async () => {
+    const fetchGroups = useCallback(async () => {
         setLoading(true)
         // Fetch from Supabase/Evolution API
         setTimeout(() => {
             setGroups([])
             setLoading(false)
         }, 500)
-    }
+    }, [])
 
     useEffect(() => {
         fetchGroups()
-    }, [])
+    }, [fetchGroups])
 
-    const filteredGroups = groups.filter(g => {
+    const filteredGroups = useMemo(() => groups.filter(g => {
         const matchesTab = tab === 'origin' ? !g.isDestination : g.isDestination
         const matchesSearch = g.name.toLowerCase().includes(search.toLowerCase())
         return matchesTab && matchesSearch
-    })
+    }), [groups, tab, search])
 
     return (
         <div className="space-y-10 pb-10">

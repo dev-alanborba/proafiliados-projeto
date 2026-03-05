@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
     Zap,
     Users,
@@ -15,19 +15,22 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
-} from 'recharts'
+
+const DashboardChart = dynamic(() => import('@/components/DashboardChart'), {
+    ssr: false,
+    loading: () => <div className="flex-grow h-[350px] w-full" />,
+})
 
 const supabase = createClient()
+
+const PLANS = [
+    { name: 'Starter', price: '47', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados', 'Captura Real-time'] },
+    { name: 'Professional', price: '97', popular: true, features: ['3 Sessões WhatsApp', '50 Grupos Monitorados', 'AI Pattern Matching', 'Relatórios Avançados'] },
+    { name: 'Enterprise', price: '197', features: ['10 Sessões WhatsApp', 'Grupos Ilimitados', 'API Access Beta', 'Gerente de Conta'] }
+]
 
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
@@ -102,11 +105,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        {[
-                            { name: 'Starter', price: '47', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados', 'Captura Real-time'] },
-                            { name: 'Professional', price: '97', popular: true, features: ['3 Sessões WhatsApp', '50 Grupos Monitorados', 'AI Pattern Matching', 'Relatórios Avançados'] },
-                            { name: 'Enterprise', price: '197', features: ['10 Sessões WhatsApp', 'Grupos Ilimitados', 'API Access Beta', 'Gerente de Conta'] }
-                        ].map((plan, i) => (
+                        {PLANS.map((plan, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, y: 30 }}
@@ -170,12 +169,12 @@ export default function DashboardPage() {
         )
     }
 
-    const dashboardStats = [
+    const dashboardStats = useMemo(() => [
         { label: 'Links Capturados', value: stats.totalLinks.toString(), icon: Link2, trend: '+0%', trendUp: true, color: 'primary' },
         { label: 'Grupos Ativos', value: stats.groups.toString(), icon: Users, trend: '0', trendUp: true, color: 'secondary' },
         { label: 'Mensagens/Dia', value: stats.messages.toString(), icon: MessageSquare, trend: '+0%', trendUp: true, color: 'primary' },
         { label: 'Taxa de Conversão', value: `${stats.conversions}%`, icon: TrendingUp, trend: '+0%', trendUp: true, color: 'secondary' },
-    ]
+    ], [stats])
 
     return (
         <div className="flex-grow bg-[#050505] p-8 space-y-8 overflow-y-auto">
@@ -247,25 +246,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex-grow h-[350px] w-full relative z-10">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData}>
-                                <defs>
-                                    <linearGradient id="colorLinks" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 10, fontWeight: 'bold' }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 10, fontWeight: 'bold' }} />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#050505', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', backdropFilter: 'blur(20px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
-                                    itemStyle={{ color: '#7c3aed', fontWeight: '900', fontSize: '12px' }}
-                                    cursor={{ stroke: '#7c3aed', strokeWidth: 2, strokeDasharray: '5 5' }}
-                                />
-                                <Area type="monotone" dataKey="links" stroke="#7c3aed" strokeWidth={5} fillOpacity={1} fill="url(#colorLinks)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        <DashboardChart data={chartData} />
                     </div>
                 </div>
 

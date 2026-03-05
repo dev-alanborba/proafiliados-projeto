@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24, // 24 hours
+    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year for immutable assets
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', 'date-fns'],
   },
   async headers() {
     return [
