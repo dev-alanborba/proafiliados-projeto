@@ -87,9 +87,9 @@ export default function DashboardPage() {
 
     if (!isActive) {
         return (
-            <div className="flex-grow bg-[#050505] p-12 overflow-y-auto">
-                <div className="max-w-6xl mx-auto space-y-16">
-                    <div className="space-y-4">
+            <div className="flex-grow bg-[#050505] p-6 md:p-12 overflow-y-auto">
+                <div className="max-w-6xl mx-auto space-y-12 md:space-y-16">
+                    <div className="space-y-4 px-4 md:px-0">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -97,8 +97,8 @@ export default function DashboardPage() {
                         >
                             <Zap className="w-3 h-3" /> Assinatura Requerida
                         </motion.div>
-                        <h1 className="text-6xl font-black text-white tracking-tighter uppercase italic">Ative sua <span className="text-primary">Inteligência</span></h1>
-                        <p className="text-muted text-xl font-medium max-w-2xl leading-relaxed">Sua conta está pronta. Escolha um plano de elite para liberar o monitoramento global de links.</p>
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase italic break-words leading-tight">Ative sua <span className="text-primary block sm:inline">Inteligência</span></h1>
+                        <p className="text-muted md:text-xl font-medium max-w-2xl leading-relaxed">Sua conta está pronta. Escolha um plano de elite para liberar o monitoramento global de links.</p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
