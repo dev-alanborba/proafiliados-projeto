@@ -158,10 +158,10 @@ function CheckoutContent() {
 
                         <div className="space-y-1">
                             <p className="text-[10px] font-black text-white uppercase tracking-widest">
-                                {qrCodeData ? 'Aguardando Pagamento' : 'Aguardando API'}
+                                {qrCodeData ? 'Aguardando Pagamento' : 'Pagamento via PIX'}
                             </p>
                             <p className="text-[9px] text-muted font-bold uppercase tracking-widest leading-tight">
-                                {qrCodeData ? 'Abra o app do seu banco e escaneie' : 'O sistema de pagamentos será liberado em breve.'}
+                                {qrCodeData ? 'Abra o app do seu banco e escaneie' : 'Clique no botão abaixo para gerar a chave.'}
                             </p>
                         </div>
                     </div>
@@ -171,7 +171,7 @@ function CheckoutContent() {
                     <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-center space-y-2">
                         <p className="text-[10px] font-black text-muted uppercase tracking-widest">Código Copia e Cola</p>
                         <p className="text-[9px] font-mono text-white break-all opacity-80 select-all p-2 bg-white/5 rounded-lg border border-white/5 max-h-24 overflow-y-auto w-full mx-auto" style={{ wordBreak: 'break-all' }}>
-                            {qrCodeData ? qrCodeData.copyPaste : '00020101021226840014BR.GOV.BCB.PIX01362e49c71e-d4d1-443b-871d-727b13...'}
+                            {qrCodeData ? qrCodeData.copyPaste : '***************************************************************'}
                         </p>
                     </div>
 

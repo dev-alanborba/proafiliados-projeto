@@ -51,12 +51,26 @@ export function Sidebar() {
 
     return (
         <>
+            {/* --- MOBILE HEADER WITH LOGOUT --- */}
+            <div className="md:hidden fixed top-0 left-0 w-full z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/20">
+                        <Zap className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-black text-white text-sm uppercase tracking-wider">ProAfiliados</span>
+                </div>
+                <button onClick={handleSignOut} className="flex items-center gap-2 p-2 text-muted hover:text-red-400 transition-colors">
+                    <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">Sair</span>
+                    <LogOut className="w-5 h-5" />
+                </button>
+            </div>
+
             {/* --- DESKTOP SIDEBAR --- */}
-            <aside className="hidden md:flex w-72 bg-[#050505] border-r border-white/5 flex-col fixed h-screen overflow-hidden">
-                {/* Background Glow */}
+            <aside className="hidden md:flex w-72 bg-[#050505] border-r border-white/5 flex-col fixed inset-y-0 left-0 overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-64 bg-primary/5 blur-[100px] -translate-y-1/2 pointer-events-none" />
 
-                <div className="p-8 flex items-center gap-4 relative z-10">
+                {/* Fixed Header */}
+                <div className="p-8 flex items-center gap-4 relative z-10 shrink-0">
                     <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(124,58,237,0.2)] shrink-0">
                         <Zap className="w-7 h-7 text-primary fill-primary/20" />
                     </div>
@@ -66,75 +80,79 @@ export function Sidebar() {
                     </div>
                 </div>
 
-                <nav className="flex-grow px-4 space-y-2 py-4 relative z-10">
-                    {menuItems.map((item) => {
-                        const isActive = pathname === item.href
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={cn(
-                                    "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group relative overflow-hidden",
-                                    isActive
-                                        ? "bg-white/[0.03] text-white border border-white/5 shadow-2xl"
-                                        : "text-muted hover:bg-white/[0.02] hover:text-white"
-                                )}
-                            >
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="active-pill"
-                                        className="absolute left-0 w-1 h-6 bg-primary rounded-full"
-                                    />
-                                )}
-                                <item.icon className={cn(
-                                    "w-5 h-5 transition-transform duration-300 group-hover:scale-110",
-                                    isActive ? "text-primary" : "text-muted"
-                                )} />
-                                <span className="text-sm font-bold tracking-tight">{item.label}</span>
-                            </Link>
-                        )
-                    })}
-                </nav>
+                {/* Scrollable Content Area (Menus + Card) */}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    <nav className="px-4 space-y-2 py-2 relative z-10">
+                        {menuItems.map((item) => {
+                            const isActive = pathname === item.href
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={cn(
+                                        "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group relative overflow-hidden",
+                                        isActive
+                                            ? "bg-white/[0.03] text-white border border-white/5 shadow-2xl"
+                                            : "text-muted hover:bg-white/[0.02] hover:text-white"
+                                    )}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="active-pill"
+                                            className="absolute left-0 w-1 h-6 bg-primary rounded-full"
+                                        />
+                                    )}
+                                    <item.icon className={cn(
+                                        "w-5 h-5 transition-transform duration-300 group-hover:scale-110",
+                                        isActive ? "text-primary" : "text-muted"
+                                    )} />
+                                    <span className="text-sm font-bold tracking-tight">{item.label}</span>
+                                </Link>
+                            )
+                        })}
+                    </nav>
 
-                {/* Subscription Status Card */}
-                <div className="p-6 relative z-10">
-                    <div className="bento-card p-6 space-y-4">
-                        <div className="inner-glow" />
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-muted">Seu Plano</span>
-                            <span className={cn(
-                                "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest",
-                                subscriptionStatus === 'active' ? "bg-secondary/10 text-secondary" : "bg-amber-500/10 text-amber-500"
-                            )}>
-                                {subscriptionStatus === 'active' ? 'Ativo' : 'Pendente'}
-                            </span>
+                    {/* Subscription Status Card */}
+                    <div className="p-6 relative z-10">
+                        <div className="bento-card p-6 space-y-4">
+                            <div className="inner-glow" />
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-muted">Seu Plano</span>
+                                <span className={cn(
+                                    "px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest",
+                                    subscriptionStatus === 'active' ? "bg-secondary/10 text-secondary" : "bg-amber-500/10 text-amber-500"
+                                )}>
+                                    {subscriptionStatus === 'active' ? 'Ativo' : 'Pendente'}
+                                </span>
+                            </div>
+                            <p className="text-lg font-black text-white tracking-tight leading-none uppercase">{planName}</p>
+                            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: subscriptionStatus === 'active' ? '100%' : '15%' }}
+                                    className={cn(
+                                        "h-full rounded-full transition-all duration-1000",
+                                        subscriptionStatus === 'active' ? "bg-secondary shadow-[0_0_10px_rgba(0,255,135,0.4)]" : "bg-amber-500"
+                                    )}
+                                />
+                            </div>
+                            <p className="text-[9px] font-bold text-muted leading-relaxed">
+                                {subscriptionStatus === 'active'
+                                    ? 'Todos os sistemas estão operando em regime de alta performance.'
+                                    : 'Complete o pagamento para liberar o monitoramento total.'}
+                            </p>
                         </div>
-                        <p className="text-lg font-black text-white tracking-tight leading-none uppercase">{planName}</p>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: subscriptionStatus === 'active' ? '100%' : '15%' }}
-                                className={cn(
-                                    "h-full rounded-full transition-all duration-1000",
-                                    subscriptionStatus === 'active' ? "bg-secondary shadow-[0_0_10px_rgba(0,255,135,0.4)]" : "bg-amber-500"
-                                )}
-                            />
-                        </div>
-                        <p className="text-[9px] font-bold text-muted leading-relaxed">
-                            {subscriptionStatus === 'active'
-                                ? 'Todos os sistemas estão operando em regime de alta performance.'
-                                : 'Complete o pagamento para liberar o monitoramento total.'}
-                        </p>
                     </div>
-                </div>
+                </div> {/* End Scrollable Content */}
 
-                <div className="p-6 relative z-10 mt-auto">
+                {/* Fixed Footer (Logout) */}
+                <div className="p-6 pt-4 relative z-10 w-full border-t border-white/5 bg-[#050505] shrink-0">
                     <button
                         onClick={handleSignOut}
                         className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold text-muted hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
                     >
                         <LogOut className="w-5 h-5" />
-                        Sair
+                        Sair da Conta
                     </button>
                 </div>
             </aside>

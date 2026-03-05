@@ -38,6 +38,23 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
+    // --- Subscription Protection ---
+    // Blocks access to core features if user did not pay (subscription_status !== 'active')
+    const premiumRoutes = ['/dashboard/whatsapp', '/dashboard/grupos', '/dashboard/links', '/dashboard/relatorios']
+    const isPremiumRoute = premiumRoutes.some(route => request.nextUrl.pathname.startsWith(route))
+
+    if (user && isPremiumRoute) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('subscription_status')
+            .eq('id', user.id)
+            .single()
+
+        if (profile?.subscription_status !== 'active') {
+            return NextResponse.redirect(new URL('/dashboard', request.url))
+        }
+    }
+
     // Admin Session Protection for Master Panel
     // Block any /api/admin routes without a valid admin session cookie
     if (request.nextUrl.pathname.startsWith('/api/admin')) {

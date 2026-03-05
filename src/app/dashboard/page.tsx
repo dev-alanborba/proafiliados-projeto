@@ -141,7 +141,7 @@ export default function DashboardPage() {
                                     ))}
                                 </ul>
                                 <Link
-                                    href="/dashboard/checkout"
+                                    href={`/dashboard/checkout?plan=${plan.name.toLowerCase()}`}
                                     className={cn(
                                         "w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all text-center block shadow-2xl relative overflow-hidden",
                                         plan.popular ? "bg-white text-black" : "bg-white/5 border border-white/5"
@@ -153,15 +153,15 @@ export default function DashboardPage() {
                         ))}
                     </div>
 
-                    <div className="p-10 bento-card border-white/5 bg-white/[0.01] flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="p-10 bento-card border-white/5 bg-white/[0.01] flex flex-col md:flex-row items-center justify-center gap-8 w-full">
                         <div className="inner-glow" />
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                        <div className="flex items-center gap-6 text-left">
+                            <div className="w-16 h-16 rounded-2xl bg-secondary/10 border border-secondary/20 flex items-center justify-center shrink-0">
                                 <ShieldCheck className="w-8 h-8 text-secondary" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-black text-white uppercase italic">Pagamento Blindado</h3>
-                                <p className="text-xs text-muted font-bold uppercase tracking-widest">Processado via Mercado Pago com ativação instantânea.</p>
+                                <p className="text-xs text-muted font-bold uppercase tracking-widest leading-relaxed">Processado via Mercado Pago com ativação instantânea.</p>
                             </div>
                         </div>
                     </div>
