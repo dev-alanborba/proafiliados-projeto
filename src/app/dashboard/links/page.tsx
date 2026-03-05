@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Toast } from '@/components/Toast'
+import { motion } from 'framer-motion'
 
 const PLATFORMS = ['All', 'Shopee', 'Mercado Livre', 'Amazon']
 
@@ -113,8 +114,14 @@ export default function LinksPage() {
                         <div key={i} className="h-28 rounded-3xl bg-white/5 animate-pulse border border-white/5" />
                     ))
                 ) : filteredLinks.length > 0 ? (
-                    filteredLinks.map((link) => (
-                        <div key={link.id} className="glass-card rounded-3xl p-6 hover:translate-y-[-2px] transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group">
+                    filteredLinks.map((link, index) => (
+                        <motion.div
+                            key={link.id}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.04, duration: 0.2 }}
+                            className="glass-card rounded-3xl p-6 hover:translate-y-[-2px] transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group"
+                        >
                             <div className="flex items-center gap-6 flex-grow">
                                 <div className={cn(
                                     "w-16 h-16 rounded-2xl flex items-center justify-center border transition-transform group-hover:scale-105 duration-500 shrink-0 shadow-lg",
@@ -175,7 +182,7 @@ export default function LinksPage() {
                                     <ExternalLink className="w-4 h-4" /> Abrir
                                 </a>
                             </div>
-                        </div>
+                        </motion.div>
                     ))
                 ) : (
                     <div className="glass-card rounded-[2.5rem] p-16 flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden group">

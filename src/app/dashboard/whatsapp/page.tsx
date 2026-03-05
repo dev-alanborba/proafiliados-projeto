@@ -20,6 +20,13 @@ import { cn } from "@/lib/utils"
 import { Toast } from '@/components/Toast'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 
+const STEPS = [
+    { id: 1, title: 'Início', icon: Smartphone },
+    { id: 2, title: 'Conexão', icon: QrCode },
+    { id: 3, title: 'Sincronia', icon: RefreshCw },
+    { id: 4, title: 'Pronto', icon: CheckCircle2 },
+]
+
 export default function WhatsAppPage() {
     const [step, setStep] = useState(1)
     const [status, setStatus] = useState<'loading' | 'disconnected' | 'connected' | 'error'>('loading')
@@ -68,13 +75,6 @@ export default function WhatsAppPage() {
         }
     }, [countdown, status, fetchQr])
 
-    const steps = [
-        { id: 1, title: 'Início', icon: Smartphone },
-        { id: 2, title: 'Conexão', icon: QrCode },
-        { id: 3, title: 'Sincronia', icon: RefreshCw },
-        { id: 4, title: 'Pronto', icon: CheckCircle2 },
-    ]
-
     return (
         <div className="max-w-5xl mx-auto space-y-12 pb-20">
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
@@ -105,7 +105,7 @@ export default function WhatsAppPage() {
                 </div>
 
                 <div className="flex items-center gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
-                    {steps.map((s) => (
+                    {STEPS.map((s) => (
                         <div
                             key={s.id}
                             className={cn(

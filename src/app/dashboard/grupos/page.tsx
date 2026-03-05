@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { cn } from "@/lib/utils"
 import { Toast } from '@/components/Toast'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { motion } from 'framer-motion'
 
 interface Group {
     id: string;
@@ -207,11 +208,17 @@ export default function GroupsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative">
                         <div className="absolute top-0 left-1/2 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
-                        {filteredGroups.map((group) => {
+                        {filteredGroups.map((group, index) => {
                             const destLoading = loadingIds.has(`dest-${group.id}`)
                             const monitorLoading = loadingIds.has(group.id)
                             return (
-                                <div key={group.id} className="glass-card rounded-[2.5rem] p-8 space-y-6 hover:translate-y-[-4px] transition-all duration-300 group shadow-2xl relative overflow-hidden">
+                                <motion.div
+                                    key={group.id}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05, duration: 0.2 }}
+                                    className="glass-card rounded-[2.5rem] p-8 space-y-6 hover:translate-y-[-4px] transition-all duration-300 group shadow-2xl relative overflow-hidden"
+                                >
                                     <div className={cn(
                                         "absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full -mr-12 -mt-12 transition-opacity opacity-0 group-hover:opacity-100",
                                         group.monitored ? "bg-primary/20" : "bg-white/10"
@@ -273,7 +280,7 @@ export default function GroupsPage() {
                                             }
                                         </button>
                                     </div>
-                                </div>
+                                </motion.div>
                             )
                         })}
                     </div>

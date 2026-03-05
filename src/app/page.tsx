@@ -6,6 +6,77 @@ import { ArrowRight, Check, Zap, Shield, BarChart3, Globe, Smartphone, Users, Re
 import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 
+// Static data extracted to module level — never recreated on re-render
+const STATS = [
+  { value: '10.000+', label: 'Links Capturados' },
+  { value: '3', label: 'Plataformas' },
+  { value: '24/7', label: 'Uptime Contínuo' },
+]
+
+const MOCKUP_STATS = [
+  { label: 'Links Capturados', value: '1.284', color: 'text-primary' },
+  { label: 'Grupos Ativos', value: '12', color: 'text-secondary' },
+  { label: 'Conversões Hoje', value: '48', color: 'text-amber-400' },
+]
+
+const MOCKUP_CHART_BARS = [30, 55, 40, 70, 45, 80, 60]
+
+const MOCKUP_PLATFORMS = [
+  { name: 'Shopee', pct: 60, color: 'bg-orange-500/60' },
+  { name: 'M.Livre', pct: 30, color: 'bg-yellow-400/60' },
+  { name: 'Amazon', pct: 10, color: 'bg-blue-400/60' },
+]
+
+const LINK_STREAM_ITEMS = [
+  { p: 'Shopee', pr: 'R$ 47,90', x: '10%', y: '20%', d: 0 },
+  { p: 'M. Livre', pr: 'R$ 159,00', x: '60%', y: '15%', d: 0.5 },
+  { p: 'Amazon', pr: 'R$ 1.299', x: '30%', y: '50%', d: 1 },
+  { p: 'AliExpress', pr: 'R$ 89,00', x: '75%', y: '45%', d: 1.5 },
+  { p: 'Hotmart', pr: 'R$ 297,00', x: '15%', y: '75%', d: 0.8 },
+  { p: 'Eduzz', pr: 'R$ 49,90', x: '55%', y: '80%', d: 1.2 },
+  { p: 'Kiwify', pr: 'R$ 97,00', x: '85%', y: '25%', d: 2 },
+  { p: 'Monetizze', pr: 'R$ 197,00', x: '40%', y: '65%', d: 0.3 },
+]
+
+const TESTIMONIALS = [
+  {
+    name: 'Ana S.',
+    role: 'Afiliada Shopee — SP',
+    text: 'Antes eu ficava copiando link por link manualmente. Hoje o robô faz tudo. Dobrei minha comissão no primeiro mês.',
+    initials: 'AS',
+    color: 'bg-primary/20 text-primary border-primary/30',
+  },
+  {
+    name: 'Rafael M.',
+    role: 'Afiliado Mercado Livre — RJ',
+    text: 'A substituição de link é instantânea. Nunca perco uma oferta. Já paguei o plano com a primeira semana de uso.',
+    initials: 'RM',
+    color: 'bg-secondary/20 text-secondary border-secondary/30',
+  },
+  {
+    name: 'Carla T.',
+    role: 'Afiliada Amazon — MG',
+    text: 'Monitorar 30 grupos ao mesmo tempo era impossível manualmente. Agora é automático. Indispensável.',
+    initials: 'CT',
+    color: 'bg-amber-400/20 text-amber-400 border-amber-400/30',
+  },
+]
+
+const PRICING_PLANS = [
+  { name: 'Starter', price: '47', desc: 'Para quem está começando a escalar.', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados', 'Captura Real-time', 'Suporte via Ticket'] },
+  { name: 'Professional', price: '97', desc: 'O equilíbrio perfeito para profissionais.', popular: true, features: ['3 Sessões WhatsApp', '50 Grupos Monitorados', 'AI Pattern Matching', 'Relatórios Avançados', 'Suporte Prioritário'] },
+  { name: 'Enterprise', price: '197', desc: 'Potência máxima para grandes operações.', features: ['10 Sessões WhatsApp', 'Grupos Ilimitados', 'API Access Beta', 'Gerente de Conta', 'Infra Dedicada'] },
+]
+
+const FAQ_ITEMS = [
+  { q: 'Meu WhatsApp pode ser banido?', a: 'Utilizamos a Evolution API com técnicas anti-ban. Recomendamos usar um número secundário dedicado ao robô, como a maioria dos nossos usuários faz.' },
+  { q: 'Quais plataformas são suportadas?', a: 'Shopee, Mercado Livre e Amazon. Novos marketplaces são adicionados frequentemente.' },
+  { q: 'Funciona com grupos privados?', a: 'Sim. O robô precisa apenas fazer parte dos grupos monitorados. Grupos privados funcionam normalmente.' },
+  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, sem fidelidade. O cancelamento é feito em um clique no painel. Você mantém o acesso até o fim do período pago.' },
+  { q: 'Como funciona a substituição de link?', a: 'O robô detecta links de afiliado nas mensagens, extrai o produto, gera o link com o seu ID de afiliado e reencaminha a mensagem nos seus Grupos VIP.' },
+  { q: 'O robô envia mensagens automaticamente?', a: 'Sim. Ao detectar uma oferta válida, reencaminha automaticamente para os seus grupos destino com o link substituído.' },
+]
+
 export default function LandingPage() {
   const [faqOpen, setFaqOpen] = useState<number>(-1)
 
@@ -124,11 +195,7 @@ export default function LandingPage() {
               transition={{ duration: 0.8, delay: 1.2 }}
               className="flex flex-col sm:flex-row items-center justify-center divide-y sm:divide-y-0 sm:divide-x divide-white/10 pt-4"
             >
-              {[
-                { value: '10.000+', label: 'Links Capturados' },
-                { value: '3', label: 'Plataformas' },
-                { value: '24/7', label: 'Uptime Contínuo' },
-              ].map((stat, i) => (
+              {STATS.map((stat, i) => (
                 <div key={i} className="flex flex-col items-center px-10 py-4">
                   <span className="text-3xl font-black text-white tracking-tighter">{stat.value}</span>
                   <span className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mt-1">{stat.label}</span>
@@ -249,11 +316,7 @@ export default function LandingPage() {
               {/* Dashboard content */}
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-3 gap-4">
-                  {[
-                    { label: 'Links Capturados', value: '1.284', color: 'text-primary' },
-                    { label: 'Grupos Ativos', value: '12', color: 'text-secondary' },
-                    { label: 'Conversões Hoje', value: '48', color: 'text-amber-400' },
-                  ].map((item, i) => (
+                  {MOCKUP_STATS.map((item, i) => (
                     <div key={i} className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-2">
                       <div className={cn('text-[10px] font-black uppercase tracking-widest', item.color)}>{item.label}</div>
                       <div className="text-3xl font-black text-white tracking-tighter">{item.value}</div>
@@ -264,7 +327,7 @@ export default function LandingPage() {
                   <div className="col-span-2 bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-3">
                     <div className="text-[10px] font-black uppercase tracking-widest text-muted">Atividade 24h</div>
                     <div className="flex items-end gap-1.5 h-14">
-                      {[30, 55, 40, 70, 45, 80, 60].map((h, i) => (
+                      {MOCKUP_CHART_BARS.map((h, i) => (
                         <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-primary/30 rounded-t-sm" />
                       ))}
                     </div>
@@ -272,11 +335,7 @@ export default function LandingPage() {
                   <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-3">
                     <div className="text-[10px] font-black uppercase tracking-widest text-muted">Plataformas</div>
                     <div className="space-y-2">
-                      {[
-                        { name: 'Shopee', pct: 60, color: 'bg-orange-500/60' },
-                        { name: 'M.Livre', pct: 30, color: 'bg-yellow-400/60' },
-                        { name: 'Amazon', pct: 10, color: 'bg-blue-400/60' },
-                      ].map((p, i) => (
+                      {MOCKUP_PLATFORMS.map((p, i) => (
                         <div key={i} className="space-y-1">
                           <div className="flex justify-between text-[9px] font-bold text-muted">
                             <span>{p.name}</span><span>{p.pct}%</span>
@@ -315,12 +374,13 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section - High-End Bento Grid */}
-        <section id="features" className="py-24 relative overflow-hidden">
+        <section id="features" className="py-24 relative overflow-hidden content-visibility-auto">
           <div className="max-w-7xl mx-auto px-6 space-y-24">
             <div className="text-center space-y-6">
               <motion.span
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
                 className="text-primary font-black text-[10px] uppercase tracking-[0.4em]"
               >
                 Engenharia de Performance
@@ -350,16 +410,7 @@ export default function LandingPage() {
 
                   {/* Dynamic Link Stream Visualization */}
                   <div className="relative h-full w-full flex items-center justify-center overflow-hidden">
-                    {[
-                      { p: 'Shopee', pr: 'R$ 47,90', x: '10%', y: '20%', d: 0 },
-                      { p: 'M. Livre', pr: 'R$ 159,00', x: '60%', y: '15%', d: 0.5 },
-                      { p: 'Amazon', pr: 'R$ 1.299', x: '30%', y: '50%', d: 1 },
-                      { p: 'AliExpress', pr: 'R$ 89,00', x: '75%', y: '45%', d: 1.5 },
-                      { p: 'Hotmart', pr: 'R$ 297,00', x: '15%', y: '75%', d: 0.8 },
-                      { p: 'Eduzz', pr: 'R$ 49,90', x: '55%', y: '80%', d: 1.2 },
-                      { p: 'Kiwify', pr: 'R$ 97,00', x: '85%', y: '25%', d: 2 },
-                      { p: 'Monetizze', pr: 'R$ 197,00', x: '40%', y: '65%', d: 0.3 },
-                    ].map((item, i) => (
+                    {LINK_STREAM_ITEMS.map((item, i) => (
                       <motion.div
                         key={i}
                         animate={{
@@ -485,7 +536,7 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-24 relative overflow-hidden">
+        <section className="py-24 relative overflow-hidden content-visibility-auto">
           <div className="max-w-7xl mx-auto px-6 space-y-16 relative z-10">
             <div className="text-center space-y-4">
               <motion.span
@@ -506,29 +557,7 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  name: 'Ana S.',
-                  role: 'Afiliada Shopee — SP',
-                  text: 'Antes eu ficava copiando link por link manualmente. Hoje o robô faz tudo. Dobrei minha comissão no primeiro mês.',
-                  initials: 'AS',
-                  color: 'bg-primary/20 text-primary border-primary/30',
-                },
-                {
-                  name: 'Rafael M.',
-                  role: 'Afiliado Mercado Livre — RJ',
-                  text: 'A substituição de link é instantânea. Nunca perco uma oferta. Já paguei o plano com a primeira semana de uso.',
-                  initials: 'RM',
-                  color: 'bg-secondary/20 text-secondary border-secondary/30',
-                },
-                {
-                  name: 'Carla T.',
-                  role: 'Afiliada Amazon — MG',
-                  text: 'Monitorar 30 grupos ao mesmo tempo era impossível manualmente. Agora é automático. Indispensável.',
-                  initials: 'CT',
-                  color: 'bg-amber-400/20 text-amber-400 border-amber-400/30',
-                },
-              ].map((t, i) => (
+              {TESTIMONIALS.map((t, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
@@ -559,7 +588,7 @@ export default function LandingPage() {
         </section>
 
         {/* Pricing Section - Premium Bento-style */}
-        <section id="pricing" className="py-24 relative">
+        <section id="pricing" className="py-24 relative content-visibility-auto">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-6 space-y-24 relative z-10">
@@ -570,15 +599,12 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { name: 'Starter', price: '47', desc: 'Para quem está começando a escalar.', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados', 'Captura Real-time', 'Suporte via Ticket'] },
-                { name: 'Professional', price: '97', desc: 'O equilíbrio perfeito para profissionais.', popular: true, features: ['3 Sessões WhatsApp', '50 Grupos Monitorados', 'AI Pattern Matching', 'Relatórios Avançados', 'Suporte Prioritário'] },
-                { name: 'Enterprise', price: '197', desc: 'Potência máxima para grandes operações.', features: ['10 Sessões WhatsApp', 'Grupos Ilimitados', 'API Access Beta', 'Gerente de Conta', 'Infra Dedicada'] }
-              ].map((plan, i) => (
+              {PRICING_PLANS.map((plan, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                   whileHover={{ y: -10 }}
                   className={cn(
@@ -626,7 +652,7 @@ export default function LandingPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-24 relative">
+        <section className="py-24 relative content-visibility-auto">
           <div className="max-w-2xl mx-auto px-6 space-y-16 relative z-10">
             <div className="text-center space-y-4">
               <span className="text-primary font-black text-[10px] uppercase tracking-[0.4em]">Dúvidas</span>
@@ -634,32 +660,7 @@ export default function LandingPage() {
             </div>
 
             <div className="divide-y divide-white/5">
-              {[
-                {
-                  q: 'Meu WhatsApp pode ser banido?',
-                  a: 'Utilizamos a Evolution API com técnicas anti-ban. Recomendamos usar um número secundário dedicado ao robô, como a maioria dos nossos usuários faz.',
-                },
-                {
-                  q: 'Quais plataformas são suportadas?',
-                  a: 'Shopee, Mercado Livre e Amazon. Novos marketplaces são adicionados frequentemente.',
-                },
-                {
-                  q: 'Funciona com grupos privados?',
-                  a: 'Sim. O robô precisa apenas fazer parte dos grupos monitorados. Grupos privados funcionam normalmente.',
-                },
-                {
-                  q: 'Posso cancelar a qualquer momento?',
-                  a: 'Sim, sem fidelidade. O cancelamento é feito em um clique no painel. Você mantém o acesso até o fim do período pago.',
-                },
-                {
-                  q: 'Como funciona a substituição de link?',
-                  a: 'O robô detecta links de afiliado nas mensagens, extrai o produto, gera o link com o seu ID de afiliado e reencaminha a mensagem nos seus Grupos VIP.',
-                },
-                {
-                  q: 'O robô envia mensagens automaticamente?',
-                  a: 'Sim. Ao detectar uma oferta válida, reencaminha automaticamente para os seus grupos destino com o link substituído.',
-                },
-              ].map((item, i) => (
+              {FAQ_ITEMS.map((item, i) => (
                 <div
                   key={i}
                   className="py-6 cursor-pointer group"

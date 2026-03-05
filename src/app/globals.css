@@ -79,6 +79,11 @@ body::before {
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
+  }
 }
 
 @keyframes marquee {

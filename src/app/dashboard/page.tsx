@@ -101,11 +101,26 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex-grow flex items-center justify-center bg-[#050505] min-h-screen">
-                <div className="relative">
-                    <div className="w-20 h-20 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Zap className="w-8 h-8 text-primary animate-pulse" />
+            <div className="space-y-8 pb-10 animate-pulse">
+                {/* Header skeleton */}
+                <div className="space-y-3">
+                    <div className="h-3 w-32 bg-white/[0.04] rounded-full" />
+                    <div className="h-10 w-72 bg-white/[0.04] rounded-2xl" />
+                    <div className="h-3 w-48 bg-white/[0.03] rounded-full" />
+                </div>
+                {/* Stat cards skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-36 rounded-[2.5rem] bg-white/[0.03] border border-white/5" />
+                    ))}
+                </div>
+                {/* Chart + links skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 h-80 rounded-[2.5rem] bg-white/[0.03] border border-white/5" />
+                    <div className="space-y-4">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-20 rounded-3xl bg-white/[0.03] border border-white/5" />
+                        ))}
                     </div>
                 </div>
             </div>
