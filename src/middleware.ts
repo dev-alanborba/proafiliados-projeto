@@ -44,13 +44,9 @@ export async function middleware(request: NextRequest) {
     const isPremiumRoute = premiumRoutes.some(route => request.nextUrl.pathname.startsWith(route))
 
     if (user && isPremiumRoute) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('subscription_status')
-            .eq('id', user.id)
-            .single()
+        const isSubscribed = user.user_metadata?.subscription_status === 'active'
 
-        if (profile?.subscription_status !== 'active') {
+        if (!isSubscribed) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
         }
     }
