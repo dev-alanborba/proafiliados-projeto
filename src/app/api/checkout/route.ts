@@ -14,21 +14,38 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { planId, planName, planPrice, email, firstName, lastName, docNumber } = await request.json();
+        const body = await request.json();
+        const { planId, planName, planPrice, email, firstName, lastName, docNumber } = body;
 
-        if (!planId || !planPrice) {
-            return NextResponse.json({ error: 'Faltando dados obrigatórios para gerar o PIX.' }, { status: 400 });
+        // Validate planId against allowed values
+        const ALLOWED_PLAN_IDS = ['starter', 'professional', 'enterprise'];
+        if (!planId || !ALLOWED_PLAN_IDS.includes(planId)) {
+            return NextResponse.json({ error: 'Plano inválido.' }, { status: 400 });
+        }
+
+        // Validate price is a positive number
+        const price = Number(planPrice);
+        if (!planPrice || isNaN(price) || price <= 0) {
+            return NextResponse.json({ error: 'Valor de plano inválido.' }, { status: 400 });
+        }
+
+        // Email must come from authenticated user — no test fallbacks
+        const payerEmail = email || user?.email;
+        if (!payerEmail) {
+            return NextResponse.json({ error: 'Email do pagador é obrigatório.' }, { status: 400 });
+        }
+
+        // CPF must be explicitly provided — no fictitious fallback
+        const payerDoc = docNumber ? docNumber.replace(/\D/g, '') : null;
+        if (!payerDoc || payerDoc.length !== 11) {
+            return NextResponse.json({ error: 'CPF do pagador é obrigatório e deve ter 11 dígitos.' }, { status: 400 });
         }
 
         const payment = new Payment(client);
 
-        // Identificação default se usuário não preencher para testes
-        const payerEmail = email || user?.email || 'test_user_123@testuser.com';
-        const payerDoc = docNumber ? docNumber.replace(/\D/g, '') : '19119119100'; // CPF fictício que funciona no sandbox se vazio
-
         const result = await payment.create({
             body: {
-                transaction_amount: Number(planPrice),
+                transaction_amount: price,
                 description: `ProAfiliados - ${planName || 'Plano'}`,
                 payment_method_id: 'pix',
                 payer: {
@@ -40,7 +57,7 @@ export async function POST(request: Request) {
                         number: payerDoc,
                     }
                 },
-                external_reference: user?.id || `user_guest_${Date.now()}`
+                external_reference: user.id
             }
         });
 

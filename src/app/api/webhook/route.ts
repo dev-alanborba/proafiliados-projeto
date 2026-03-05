@@ -21,32 +21,54 @@ function converteLinkParaAfiliado(urlOriginal: string, clienteId: string): strin
 }
 
 export async function POST(request: Request) {
-    // Verify webhook secret to prevent unauthorized access
+    // Webhook secret is required — validate via header only (never via query string)
     const webhookSecret = process.env.WEBHOOK_SECRET
-    if (webhookSecret) {
-        const authHeader = request.headers.get('x-webhook-secret') || ''
-        const url = new URL(request.url)
-        const querySecret = url.searchParams.get('secret') || ''
-
-        if (authHeader !== webhookSecret && querySecret !== webhookSecret) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
+    if (!webhookSecret) {
+        console.error('WEBHOOK_SECRET não está definido. Rejeitando todas as requisições.')
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { event, data } = body
+    const authHeader = request.headers.get('x-webhook-secret') || ''
+    if (authHeader !== webhookSecret) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    let body: Record<string, unknown>
+    try {
+        body = await request.json()
+    } catch {
+        return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+    }
+
+    const { event, data } = body as { event?: string; data?: Record<string, unknown> }
 
     // We only care about message events
     if (event !== 'messages.upsert') {
         return NextResponse.json({ status: 'ignored' })
     }
 
-    const message = data.message
+    // Validate required fields before accessing nested properties
+    if (!data || typeof data !== 'object') {
+        return NextResponse.json({ status: 'ignored_no_data' })
+    }
+
+    const messageData = data as {
+        message?: { conversation?: string; extendedTextMessage?: { text?: string }; imageMessage?: unknown; videoMessage?: unknown; documentMessage?: unknown }
+        pushName?: string
+        key?: { remoteJid?: string }
+        instance?: string
+    }
+
+    const message = messageData.message
+    if (!message || !messageData.key?.remoteJid) {
+        return NextResponse.json({ status: 'ignored_malformed' })
+    }
+
     const content = message.conversation || message.extendedTextMessage?.text || ''
-    const senderName = data.pushName
-    const senderNumber = data.key.remoteJid.split('@')[0]
-    const groupJid = data.key.remoteJid.includes('@g.us') ? data.key.remoteJid : null
-    const instanceName = data.instance
+    const senderName = messageData.pushName ?? 'unknown'
+    const senderNumber = messageData.key.remoteJid.split('@')[0]
+    const groupJid = messageData.key.remoteJid.includes('@g.us') ? messageData.key.remoteJid : null
+    const instanceName = messageData.instance
 
     if (!content) return NextResponse.json({ status: 'empty' })
 
@@ -109,7 +131,7 @@ export async function POST(request: Request) {
                     content: mensagemConvertida, // Salva o texto que foi alterado!
                     link_url: links[0], // O link base que foi detectado
                     platform: plataformaDetectada,
-                    raw_message: data
+                    raw_message: messageData
                 })
 
                 // 4. MANDA PARA OS DESTINOS (OS GRUPOS VIP DO CLIENTE)

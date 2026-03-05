@@ -36,12 +36,14 @@ export async function POST(request: Request) {
             const planItem = paymentData.additional_info?.items?.[0]; // Usually has the id/title
             const newPlanId = planItem?.id || 'pro';
 
-            if (!userId) {
-                console.error('Webhook Error: Payment Approved but no internal user ID (external_reference) attached!', paymentData.id);
-                return NextResponse.json({ error: 'Missing External Reference' }, { status: 400 });
+            // Validate userId is a proper UUID to prevent arbitrary updates
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+            if (!userId || !uuidRegex.test(userId)) {
+                console.error('Webhook Error: Payment Approved but external_reference is missing or not a valid UUID.', paymentData.id);
+                return NextResponse.json({ error: 'Invalid External Reference' }, { status: 400 });
             }
 
-            // Automatically Upgrade User's Subscription using Database Function or direct UPDATE 
+            // Automatically Upgrade User's Subscription using Database Function or direct UPDATE
             // Ensure the "users" or "profiles" table has 'subscription_status' and 'plan_type'
             const { error } = await supabaseAdmin
                 .from('profiles') // Adjust based on the actual table name (users/profiles/subscriptions)
