@@ -29,7 +29,6 @@ export default function LinksPage() {
     }
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchLinks()
     }, [])
 
@@ -124,6 +123,7 @@ export default function LinksPage() {
                                 <a
                                     href={link.url}
                                     target="_blank"
+                                    rel="noreferrer"
                                     className="flex-grow md:flex-initial flex items-center justify-center gap-2.5 px-6 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20"
                                 >
                                     <ExternalLink className="w-4 h-4" /> Abrir

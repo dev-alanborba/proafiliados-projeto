@@ -7,9 +7,13 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADO_PAGO_ACC
 
 // Initializes Supabase Admin Client to bypass RLS in the Webhook Context
 // Note: Webhooks run server-side without an active User auth session
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for the Mercado Pago webhook handler.');
+}
+
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export async function POST(request: Request) {

@@ -11,12 +11,10 @@ import {
     Loader2,
     Check
 } from 'lucide-react'
-import { createClient } from '@/lib/supabase'
 
 function CheckoutContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
-    const supabase = createClient()
     const planId = searchParams.get('plan') || 'starter'
 
     const [loading, setLoading] = useState(false)

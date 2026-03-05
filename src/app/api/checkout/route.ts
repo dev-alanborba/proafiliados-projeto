@@ -10,9 +10,9 @@ export async function POST(request: Request) {
         const supabase = await createClient();
         const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-        // if (userError || !user) {
-        //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        // }
+        if (userError || !user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         const { planId, planName, planPrice, email, firstName, lastName, docNumber } = await request.json();
 
@@ -56,8 +56,9 @@ export async function POST(request: Request) {
             qr_code: qrCode,
             qr_code_base64: qrCodeBase64
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Checkout API Error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to create PIX payment' }, { status: 500 });
+        const message = error instanceof Error ? error.message : 'Failed to create PIX payment';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

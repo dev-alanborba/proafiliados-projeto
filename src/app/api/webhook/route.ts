@@ -93,9 +93,9 @@ export async function POST(request: Request) {
                     }
                 }
 
-                // Troca o Link (Motor de Clonagem)
+                // Troca o Link (Motor de Clonagem) - replaceAll para cobrir múltiplas ocorrências do mesmo link
                 const novoLink = converteLinkParaAfiliado(linkUrl, session.user_id)
-                mensagemConvertida = mensagemConvertida.replace(linkUrl, novoLink)
+                mensagemConvertida = mensagemConvertida.replaceAll(linkUrl, novoLink)
             }
 
             // Apenas repassamos se de fato tinha um link de oferta reconhecido

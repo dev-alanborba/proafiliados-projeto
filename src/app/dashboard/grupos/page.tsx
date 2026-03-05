@@ -9,7 +9,6 @@ import {
     RefreshCw,
     MessageSquare,
     Globe,
-    AlertCircle,
     Target
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
