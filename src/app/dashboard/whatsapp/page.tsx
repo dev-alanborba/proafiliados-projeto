@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from "@/lib/utils"
+import { Toast } from '@/components/Toast'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 export default function WhatsAppPage() {
     const [step, setStep] = useState(1)
@@ -24,6 +26,8 @@ export default function WhatsAppPage() {
     const [qrCode, setQrCode] = useState<string | null>(null)
     const [countdown, setCountdown] = useState(30)
     const [error, setError] = useState<string | null>(null)
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null)
+    const [confirmDisconnect, setConfirmDisconnect] = useState(false)
 
     const fetchQr = useCallback(async () => {
         try {
@@ -58,6 +62,7 @@ export default function WhatsAppPage() {
             const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
             return () => clearTimeout(timer)
         } else if (countdown === 0 && status === 'disconnected') {
+            setToast({ message: 'QR Code expirado. Gerando novo código...', type: 'info' })
             // eslint-disable-next-line react-hooks/set-state-in-effect
             fetchQr()
         }
@@ -72,6 +77,23 @@ export default function WhatsAppPage() {
 
     return (
         <div className="max-w-5xl mx-auto space-y-12 pb-20">
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+            <ConfirmDialog
+                open={confirmDisconnect}
+                title="Desconectar WhatsApp?"
+                description="Todos os grupos monitorados serão pausados imediatamente. Você precisará escanear o QR Code novamente para reativar."
+                confirmLabel="Desconectar"
+                variant="danger"
+                onConfirm={() => {
+                    setConfirmDisconnect(false)
+                    setStatus('disconnected')
+                    setStep(1)
+                    setQrCode(null)
+                }}
+                onCancel={() => setConfirmDisconnect(false)}
+            />
+
             {/* Header Section */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
@@ -185,8 +207,8 @@ export default function WhatsAppPage() {
                             {step === 2 && (
                                 <div className="space-y-8 relative z-10">
                                     {status === 'loading' ? (
-                                        <div className="space-y-6 flex flex-col items-center">
-                                            <div className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                                        <div role="status" aria-live="polite" className="space-y-6 flex flex-col items-center">
+                                            <div className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin" aria-hidden="true" />
                                             <p className="text-muted font-black uppercase tracking-widest text-[10px]">Alocando servidor...</p>
                                         </div>
                                     ) : qrCode ? (
@@ -259,10 +281,7 @@ export default function WhatsAppPage() {
                                     </div>
 
                                     <button
-                                        onClick={() => {
-                                            setStatus('disconnected')
-                                            setStep(1)
-                                        }}
+                                        onClick={() => setConfirmDisconnect(true)}
                                         className="text-[10px] font-black text-red-400 uppercase tracking-[0.2em] hover:text-red-300 transition-colors"
                                     >
                                         Desconectar Conta

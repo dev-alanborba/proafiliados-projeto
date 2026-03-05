@@ -12,6 +12,7 @@ import {
     Copy
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import { Toast } from '@/components/Toast'
 
 const PLATFORMS = ['All', 'Shopee', 'Mercado Livre', 'Amazon']
 
@@ -20,6 +21,7 @@ export default function LinksPage() {
     const [loading, setLoading] = useState(true)
     const [copiedId, setCopiedId] = useState<string | null>(null)
     const [filter, setFilter] = useState('All')
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null)
 
     const fetchLinks = useCallback(async () => {
         setLoading(true)
@@ -34,10 +36,27 @@ export default function LinksPage() {
         fetchLinks()
     }, [fetchLinks])
 
-    const handleCopy = useCallback((url: string, id: string) => {
-        navigator.clipboard.writeText(url)
-        setCopiedId(id)
-        setTimeout(() => setCopiedId(null), 2000)
+    const handleCopy = useCallback(async (url: string, id: string) => {
+        try {
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(url)
+            } else {
+                // Fallback for insecure contexts (HTTP)
+                const el = document.createElement('textarea')
+                el.value = url
+                el.style.position = 'fixed'
+                el.style.opacity = '0'
+                document.body.appendChild(el)
+                el.select()
+                document.execCommand('copy')
+                document.body.removeChild(el)
+            }
+            setCopiedId(id)
+            setToast({ message: 'Link copiado com sucesso!', type: 'success' })
+            setTimeout(() => setCopiedId(null), 2000)
+        } catch {
+            setToast({ message: 'Não foi possível copiar. Copie manualmente.', type: 'error' })
+        }
     }, [])
 
     const filteredLinks = useMemo(
@@ -47,6 +66,8 @@ export default function LinksPage() {
 
     return (
         <div className="space-y-10 pb-10">
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em]">
