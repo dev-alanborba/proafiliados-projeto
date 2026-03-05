@@ -72,6 +72,13 @@ body::before {
     will-change: transform;
     transform: translateZ(0);
   }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #7c3aed, #00ff87);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 @keyframes marquee {

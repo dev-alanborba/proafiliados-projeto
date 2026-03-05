@@ -1,12 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Check, Zap, Shield, BarChart3, Globe, Smartphone, Users, RefreshCw, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Check, Zap, Shield, BarChart3, Globe, Smartphone, Users, RefreshCw, CheckCircle2, ChevronDown, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 
 export default function LandingPage() {
+  const [faqOpen, setFaqOpen] = useState<number>(-1)
+
   return (
     <div className="flex flex-col min-h-screen bg-[#050505] text-white selection:bg-primary/30 font-sans">
       {/* Navbar */}
@@ -115,6 +117,24 @@ export default function LandingPage() {
                 <span className="text-white/70 group-hover:text-white transition-colors">Explorar Tecnologia</span>
               </Link>
             </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className="flex flex-col sm:flex-row items-center justify-center divide-y sm:divide-y-0 sm:divide-x divide-white/10 pt-4"
+            >
+              {[
+                { value: '10.000+', label: 'Links Capturados' },
+                { value: '3', label: 'Plataformas' },
+                { value: '24/7', label: 'Uptime Contínuo' },
+              ].map((stat, i) => (
+                <div key={i} className="flex flex-col items-center px-10 py-4">
+                  <span className="text-3xl font-black text-white tracking-tighter">{stat.value}</span>
+                  <span className="text-[10px] font-black text-muted uppercase tracking-[0.3em] mt-1">{stat.label}</span>
+                </div>
+              ))}
+            </motion.div>
           </div>
 
           {/* Dynamic Engine Workflow (Replaces Static 3D Dashboard) */}
@@ -203,6 +223,77 @@ export default function LandingPage() {
 
             </div>
           </div>
+
+          {/* Product Dashboard Mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="mt-20 w-full max-w-4xl mx-auto px-6 relative z-10"
+          >
+            <div className="rounded-[2rem] border border-white/10 bg-[#0a0a0a] shadow-2xl shadow-primary/10 overflow-hidden">
+              {/* Browser chrome */}
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5 bg-black/40">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                </div>
+                <div className="flex-1 mx-4 flex justify-center">
+                  <div className="bg-white/[0.04] border border-white/5 rounded-lg px-4 py-1.5 text-[10px] font-mono text-muted/50 w-fit">
+                    app.proafiliados.com.br/dashboard
+                  </div>
+                </div>
+              </div>
+              {/* Dashboard content */}
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: 'Links Capturados', value: '1.284', color: 'text-primary' },
+                    { label: 'Grupos Ativos', value: '12', color: 'text-secondary' },
+                    { label: 'Conversões Hoje', value: '48', color: 'text-amber-400' },
+                  ].map((item, i) => (
+                    <div key={i} className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-2">
+                      <div className={cn('text-[10px] font-black uppercase tracking-widest', item.color)}>{item.label}</div>
+                      <div className="text-3xl font-black text-white tracking-tighter">{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2 bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-3">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted">Atividade 24h</div>
+                    <div className="flex items-end gap-1.5 h-14">
+                      {[30, 55, 40, 70, 45, 80, 60].map((h, i) => (
+                        <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-primary/30 rounded-t-sm" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-3">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted">Plataformas</div>
+                    <div className="space-y-2">
+                      {[
+                        { name: 'Shopee', pct: 60, color: 'bg-orange-500/60' },
+                        { name: 'M.Livre', pct: 30, color: 'bg-yellow-400/60' },
+                        { name: 'Amazon', pct: 10, color: 'bg-blue-400/60' },
+                      ].map((p, i) => (
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-[9px] font-bold text-muted">
+                            <span>{p.name}</span><span>{p.pct}%</span>
+                          </div>
+                          <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                            <div style={{ width: `${p.pct}%` }} className={`h-full ${p.color} rounded-full`} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Fade bottom */}
+              <div className="h-10 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none" />
+            </div>
+          </motion.div>
         </section>
 
         {/* Brand Bar - 3D Carousel Style */}
@@ -234,7 +325,7 @@ export default function LandingPage() {
               >
                 Engenharia de Performance
               </motion.span>
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white">Inteligência <span className="italic">Avançada</span></h2>
+              <h2 className="text-6xl md:text-8xl font-black tracking-tighter text-white">Inteligência <span className="italic text-gradient">Avançada</span></h2>
               <p className="text-muted text-xl max-w-2xl mx-auto font-medium tracking-tight leading-relaxed">
                 Uma abordagem não linear para o monitoramento de ativos digitais. Arquitetura distribuída encontra execução impecável.
               </p>
@@ -393,6 +484,80 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Testimonials Section */}
+        <section className="py-24 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 space-y-16 relative z-10">
+            <div className="text-center space-y-4">
+              <motion.span
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="text-primary font-black text-[10px] uppercase tracking-[0.4em]"
+              >
+                Prova Social
+              </motion.span>
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white">
+                O que dizem nossos <span className="text-gradient italic">afiliados</span>
+              </h2>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/5 border border-secondary/20">
+                <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">2.400+ usuários ativos</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  name: 'Ana S.',
+                  role: 'Afiliada Shopee — SP',
+                  text: 'Antes eu ficava copiando link por link manualmente. Hoje o robô faz tudo. Dobrei minha comissão no primeiro mês.',
+                  initials: 'AS',
+                  color: 'bg-primary/20 text-primary border-primary/30',
+                },
+                {
+                  name: 'Rafael M.',
+                  role: 'Afiliado Mercado Livre — RJ',
+                  text: 'A substituição de link é instantânea. Nunca perco uma oferta. Já paguei o plano com a primeira semana de uso.',
+                  initials: 'RM',
+                  color: 'bg-secondary/20 text-secondary border-secondary/30',
+                },
+                {
+                  name: 'Carla T.',
+                  role: 'Afiliada Amazon — MG',
+                  text: 'Monitorar 30 grupos ao mesmo tempo era impossível manualmente. Agora é automático. Indispensável.',
+                  initials: 'CT',
+                  color: 'bg-amber-400/20 text-amber-400 border-amber-400/30',
+                },
+              ].map((t, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-[#0a0a0a]/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 space-y-6 hover:border-white/10 transition-all duration-300"
+                >
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, j) => (
+                      <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-muted font-medium leading-relaxed text-sm">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-4 pt-2 border-t border-white/5">
+                    <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border', t.color)}>
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div className="text-sm font-black text-white">{t.name}</div>
+                      <div className="text-[10px] font-bold text-muted uppercase tracking-widest">{t.role}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Pricing Section - Premium Bento-style */}
         <section id="pricing" className="py-24 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
@@ -455,6 +620,62 @@ export default function LandingPage() {
                     <span className="relative z-10">Aderir ao Plano</span>
                   </Link>
                 </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-24 relative">
+          <div className="max-w-2xl mx-auto px-6 space-y-16 relative z-10">
+            <div className="text-center space-y-4">
+              <span className="text-primary font-black text-[10px] uppercase tracking-[0.4em]">Dúvidas</span>
+              <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-white">Perguntas <span className="italic text-gradient">Frequentes</span></h2>
+            </div>
+
+            <div className="divide-y divide-white/5">
+              {[
+                {
+                  q: 'Meu WhatsApp pode ser banido?',
+                  a: 'Utilizamos a Evolution API com técnicas anti-ban. Recomendamos usar um número secundário dedicado ao robô, como a maioria dos nossos usuários faz.',
+                },
+                {
+                  q: 'Quais plataformas são suportadas?',
+                  a: 'Shopee, Mercado Livre e Amazon. Novos marketplaces são adicionados frequentemente.',
+                },
+                {
+                  q: 'Funciona com grupos privados?',
+                  a: 'Sim. O robô precisa apenas fazer parte dos grupos monitorados. Grupos privados funcionam normalmente.',
+                },
+                {
+                  q: 'Posso cancelar a qualquer momento?',
+                  a: 'Sim, sem fidelidade. O cancelamento é feito em um clique no painel. Você mantém o acesso até o fim do período pago.',
+                },
+                {
+                  q: 'Como funciona a substituição de link?',
+                  a: 'O robô detecta links de afiliado nas mensagens, extrai o produto, gera o link com o seu ID de afiliado e reencaminha a mensagem nos seus Grupos VIP.',
+                },
+                {
+                  q: 'O robô envia mensagens automaticamente?',
+                  a: 'Sim. Ao detectar uma oferta válida, reencaminha automaticamente para os seus grupos destino com o link substituído.',
+                },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="py-6 cursor-pointer group"
+                  onClick={() => setFaqOpen(faqOpen === i ? -1 : i)}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="font-black text-white text-lg group-hover:text-primary transition-colors">{item.q}</span>
+                    <ChevronDown className={cn('w-5 h-5 text-muted shrink-0 transition-transform duration-300', faqOpen === i && 'rotate-180')} />
+                  </div>
+                  <div className={cn(
+                    'overflow-hidden transition-all duration-300',
+                    faqOpen === i ? 'max-h-40 opacity-100 mt-4' : 'max-h-0 opacity-0'
+                  )}>
+                    <p className="text-muted font-medium leading-relaxed">{item.a}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

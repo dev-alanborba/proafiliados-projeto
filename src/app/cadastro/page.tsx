@@ -108,6 +108,27 @@ function RegisterForm() {
                                 required
                             />
                         </div>
+                        {password.length > 0 && (() => {
+                            let score = 0
+                            if (password.length >= 8) score++
+                            if (/[0-9]/.test(password)) score++
+                            if (/[^a-zA-Z0-9]/.test(password)) score++
+                            if (password.length >= 12) score++
+                            const labels = ['Fraca', 'Média', 'Boa', 'Forte']
+                            const colors = ['bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500']
+                            const textColors = ['text-red-500', 'text-orange-400', 'text-yellow-400', 'text-green-500']
+                            const idx = Math.max(0, score - 1)
+                            return (
+                                <div className="px-1 space-y-1.5 mt-2">
+                                    <div className="flex gap-1">
+                                        {[0, 1, 2, 3].map(j => (
+                                            <div key={j} className={`h-1 flex-1 rounded-full transition-all duration-300 ${j < score ? colors[idx] : 'bg-white/10'}`} />
+                                        ))}
+                                    </div>
+                                    <p className={`text-[10px] font-black uppercase tracking-widest ml-1 ${textColors[idx]}`}>{labels[idx]}</p>
+                                </div>
+                            )
+                        })()}
                     </div>
                 </div>
 
@@ -159,7 +180,7 @@ export default function RegisterPage() {
             </Suspense>
 
             {/* Trust Badges */}
-            <div className="absolute bottom-10 flex items-center gap-8 opacity-20 hidden md:flex">
+            <div className="absolute bottom-10 hidden md:flex items-center gap-8 opacity-50">
                 <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white">
                     <ShieldCheck className="w-4 h-4" /> 100% Seguro
                 </div>
