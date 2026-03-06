@@ -80,7 +80,12 @@ export async function POST(request: Request) {
         return NextResponse.json({ status: 'ignored_malformed' })
     }
 
-    const content = message.conversation || message.extendedTextMessage?.text || ''
+    const content = message.conversation ||
+        message.extendedTextMessage?.text ||
+        (message.imageMessage as any)?.caption ||
+        (message.videoMessage as any)?.caption ||
+        (message.documentMessage as any)?.caption ||
+        '';
     const senderName = messageData.pushName ?? 'unknown'
     const senderNumber = messageData.key.remoteJid.split('@')[0]
     const groupJid = messageData.key.remoteJid.includes('@g.us') ? messageData.key.remoteJid : null
