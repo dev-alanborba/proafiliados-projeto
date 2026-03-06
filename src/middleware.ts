@@ -51,7 +51,10 @@ export async function middleware(request: NextRequest) {
             .eq('id', user.id)
             .single()
 
-        const isSubscribed = profile?.subscription_status === 'active'
+        // Accept subscription from profiles (webhook) OR user_metadata (manual activation)
+        const isProfileActive = profile?.subscription_status === 'active'
+        const isMetadataActive = user.user_metadata?.subscription_status === 'active'
+        const isSubscribed = isProfileActive || isMetadataActive
 
         if (!isSubscribed) {
             return NextResponse.redirect(new URL('/dashboard', request.url))

@@ -34,6 +34,8 @@ function SidebarComponent() {
     const [userMetadata, setUserMetadata] = useState<{ full_name?: string; selected_plan?: string; subscription_status?: string } | null>(null)
     const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<string | null>(null)
 
+    const [profileSubscriptionStatus, setProfileSubscriptionStatus] = useState<string | null>(null)
+
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser()
@@ -41,9 +43,12 @@ function SidebarComponent() {
                 setUserMetadata(user.user_metadata)
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('subscription_expires_at')
+                    .select('subscription_status, subscription_expires_at')
                     .eq('id', user.id)
                     .single()
+                if (profile?.subscription_status) {
+                    setProfileSubscriptionStatus(profile.subscription_status)
+                }
                 if (profile?.subscription_expires_at) {
                     setSubscriptionExpiresAt(profile.subscription_expires_at)
                 }
@@ -58,7 +63,8 @@ function SidebarComponent() {
     }, [])
 
     const planName = userMetadata?.selected_plan || 'Nenhum'
-    const isActive = userMetadata?.subscription_status === 'active'
+    // Check both sources for subscription status
+    const isActive = profileSubscriptionStatus === 'active' || userMetadata?.subscription_status === 'active'
     const initials = userMetadata?.full_name
         ? userMetadata.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
         : 'PA'

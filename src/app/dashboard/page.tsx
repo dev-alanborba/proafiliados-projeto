@@ -87,13 +87,15 @@ export default function DashboardPage() {
             setLoading(true)
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
-                // Query subscription status from profiles table (where the webhook writes)
+                // Check subscription from profiles table (webhook) OR user_metadata (manual activation)
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('subscription_status, subscription_expires_at')
                     .eq('id', user.id)
                     .single()
-                setIsActive(profile?.subscription_status === 'active')
+                const isProfileActive = profile?.subscription_status === 'active'
+                const isMetadataActive = user.user_metadata?.subscription_status === 'active'
+                setIsActive(isProfileActive || isMetadataActive)
                 if (profile?.subscription_expires_at) {
                     setSubscriptionExpiresAt(profile.subscription_expires_at)
                 }
