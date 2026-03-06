@@ -22,11 +22,17 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
-const DashboardChart = dynamic(() => import('@/components/DashboardChart'), {
-    ssr: false,
-    loading: () => <div className="flex-grow h-[350px] w-full" />,
-})
+const DashboardChart = dynamic(
+    () => import('@/components/DashboardChart').catch(() => {
+        return { default: () => <div className="flex items-center justify-center h-full text-muted text-sm">Gráfico indisponível</div> }
+    }),
+    {
+        ssr: false,
+        loading: () => <div className="flex-grow h-[350px] w-full" />,
+    }
+)
 
 const supabase = createClient()
 
@@ -401,7 +407,9 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     <div className="flex-grow h-[350px] w-full relative z-10">
-                        <DashboardChart data={chartData} />
+                        <ErrorBoundary fallback={<div className="flex items-center justify-center h-full text-muted text-sm">Gráfico indisponível</div>}>
+                            <DashboardChart data={chartData} />
+                        </ErrorBoundary>
                     </div>
                 </div>
 

@@ -5,8 +5,8 @@ No linha:1 caractere:1
 Files\nodejs/node_mo ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (ÔÜá Warning: Ne 
-   ...not be correct.:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (ÔÜá Warning    
+: Ne...not be correct.:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
  We detected multiple lockfiles and selected the directory 
@@ -29,14 +29,14 @@ package-lock.json
 use "proxy" instead. Learn more: 
 https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 5.3s
+Ô£ô Compiled successfully in 5.4s
   Running TypeScript ...
   Collecting page data using 15 workers ...
   Generating static pages using 15 workers (0/23) ...
   Generating static pages using 15 workers (5/23) 
   Generating static pages using 15 workers (11/23) 
   Generating static pages using 15 workers (17/23) 
-Ô£ô Generating static pages using 15 workers (23/23) in 596.6ms
+Ô£ô Generating static pages using 15 workers (23/23) in 573.2ms
   Finalizing page optimization ...
 
 Route (app)
