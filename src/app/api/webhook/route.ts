@@ -34,15 +34,18 @@ function converteLinkParaAfiliado(urlOriginal: string, config: any, plataforma: 
 }
 
 export async function POST(request: Request) {
-    // Webhook secret is required — validate via header only (never via query string)
+    // Webhook secret is required
     const webhookSecret = process.env.WEBHOOK_SECRET
     if (!webhookSecret) {
         console.error('WEBHOOK_SECRET não está definido. Rejeitando todas as requisições.')
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const url = new URL(request.url)
+    const authQuery = url.searchParams.get('secret') || ''
     const authHeader = request.headers.get('x-webhook-secret') || ''
-    if (authHeader !== webhookSecret) {
+
+    if (authHeader !== webhookSecret && authQuery !== webhookSecret) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

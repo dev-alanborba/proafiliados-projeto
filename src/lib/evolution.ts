@@ -129,5 +129,30 @@ export const evolution = {
         })
         // Evolution API usually returns { base64: "..." }
         return data.base64
+    },
+
+    // Method to register Webhook
+    setWebhook: async (instanceName: string, url: string) => {
+        validateInstanceName(instanceName)
+        const payload = {
+            webhook: {
+                enabled: true,
+                url: url,
+                webhookByEvents: false,
+                webhookBase64: true,
+                events: ["MESSAGES_UPSERT"]
+            }
+        }
+        try {
+            // Evolution v2 endpoint
+            const { data } = await evolutionApi.post(`/webhook/instance/${instanceName}`, payload)
+            return data
+        } catch (err) {
+            // Fallback to v1 endpoint
+            const { data } = await evolutionApi.post(`/webhook/set/${instanceName}`, {
+                webhook: { ...payload.webhook, base64: true, byEvents: false }
+            })
+            return data
+        }
     }
 }

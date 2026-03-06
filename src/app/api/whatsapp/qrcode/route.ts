@@ -28,8 +28,14 @@ export async function GET() {
             // Create instance in Evolution API
             await evolution.createInstance(instanceName)
             console.log(`[WhatsApp] Instance ${instanceName} created in Evolution API`)
+
+            // Set Webhook for the instance
+            const webhookSecret = process.env.WEBHOOK_SECRET || ''
+            const webhookUrl = `https://proafiliados-projeto-ww21.vercel.app/api/webhook?secret=${webhookSecret}`
+            await evolution.setWebhook(instanceName, webhookUrl)
+            console.log(`[WhatsApp] Webhook configured for instance ${instanceName}`)
         } catch (err) {
-            console.error(`[WhatsApp] Failed to create instance ${instanceName}:`, err)
+            console.error(`[WhatsApp] Failed to create instance or set webhook ${instanceName}:`, err)
             // Instance might already exist, so we continue
         }
 
@@ -49,6 +55,13 @@ export async function GET() {
     try {
         console.log(`[WhatsApp] Fetching QR Code for instance: ${instanceName}`)
         const qrData = await evolution.getQrCode(instanceName)
+
+        // If Evolution v2 returns connected state, update Supabase session status
+        if (qrData?.instance?.state === 'open' || qrData?.instance?.status === 'open') {
+            await supabase.from('sessions').update({ status: 'connected' }).eq('user_id', user.id)
+            return NextResponse.json({ ...qrData, status: 'connected' })
+        }
+
         return NextResponse.json(qrData)
     } catch (err: any) {
         // If Evolution API returns 404 for the instance, it means it doesn't exist there
@@ -57,7 +70,10 @@ export async function GET() {
             console.log(`[WhatsApp] Instance ${instanceName} not found on server. Recreating...`)
             try {
                 await evolution.createInstance(instanceName)
-                console.log(`[WhatsApp] Instance ${instanceName} recreated successfully. Fetching QR again.`)
+                const webhookSecret = process.env.WEBHOOK_SECRET || ''
+                const webhookUrl = `https://proafiliados-projeto-ww21.vercel.app/api/webhook?secret=${webhookSecret}`
+                await evolution.setWebhook(instanceName, webhookUrl)
+                console.log(`[WhatsApp] Instance ${instanceName} recreated and webhook set. Fetching QR again.`)
                 const newQrData = await evolution.getQrCode(instanceName)
                 return NextResponse.json(newQrData)
             } catch (createErr) {
