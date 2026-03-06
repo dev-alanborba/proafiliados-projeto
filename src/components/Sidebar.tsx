@@ -45,7 +45,7 @@ function SidebarComponent() {
                     .from('profiles')
                     .select('subscription_status, subscription_expires_at')
                     .eq('id', user.id)
-                    .single()
+                    .maybeSingle()
                 if (profile?.subscription_status) {
                     setProfileSubscriptionStatus(profile.subscription_status)
                 }

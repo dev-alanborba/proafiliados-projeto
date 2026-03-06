@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
             .from('profiles')
             .select('subscription_status')
             .eq('id', user.id)
-            .single()
+            .maybeSingle()
 
         // Accept subscription from profiles (webhook) OR user_metadata (manual activation)
         const isProfileActive = profile?.subscription_status === 'active'

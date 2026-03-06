@@ -85,36 +85,40 @@ export default function DashboardPage() {
     useEffect(() => {
         async function fetchDashboardData() {
             setLoading(true)
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                // Check subscription from profiles table (webhook) OR user_metadata (manual activation)
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('subscription_status, subscription_expires_at')
-                    .eq('id', user.id)
-                    .single()
-                const isProfileActive = profile?.subscription_status === 'active'
-                const isMetadataActive = user.user_metadata?.subscription_status === 'active'
-                setIsActive(isProfileActive || isMetadataActive)
-                if (profile?.subscription_expires_at) {
-                    setSubscriptionExpiresAt(profile.subscription_expires_at)
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    // Check subscription from profiles table (webhook) OR user_metadata (manual activation)
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('subscription_status, subscription_expires_at')
+                        .eq('id', user.id)
+                        .maybeSingle()
+                    const isProfileActive = profile?.subscription_status === 'active'
+                    const isMetadataActive = user.user_metadata?.subscription_status === 'active'
+                    setIsActive(isProfileActive || isMetadataActive)
+                    if (profile?.subscription_expires_at) {
+                        setSubscriptionExpiresAt(profile.subscription_expires_at)
+                    }
+                    try {
+                        const [statsRes, linksRes] = await Promise.all([
+                            fetch('/api/stats'),
+                            fetch('/api/links'),
+                        ])
+                        if (statsRes.ok) {
+                            const statsData = await statsRes.json()
+                            setStats(prev => ({ ...prev, totalLinks: statsData.totalLinks ?? 0, groups: statsData.groups ?? 0 }))
+                            setChartData(statsData.chartData ?? [])
+                        }
+                        if (linksRes.ok) {
+                            const linksData = await linksRes.json()
+                            setRecentLinks((linksData.links ?? []).slice(0, 10))
+                        }
+                    } catch { /* Non-fatal */ }
+                    setSyncedAt(new Date())
                 }
-                try {
-                    const [statsRes, linksRes] = await Promise.all([
-                        fetch('/api/stats'),
-                        fetch('/api/links'),
-                    ])
-                    if (statsRes.ok) {
-                        const statsData = await statsRes.json()
-                        setStats(prev => ({ ...prev, totalLinks: statsData.totalLinks ?? 0, groups: statsData.groups ?? 0 }))
-                        setChartData(statsData.chartData ?? [])
-                    }
-                    if (linksRes.ok) {
-                        const linksData = await linksRes.json()
-                        setRecentLinks((linksData.links ?? []).slice(0, 10))
-                    }
-                } catch { /* Non-fatal */ }
-                setSyncedAt(new Date())
+            } catch (err) {
+                console.error('Dashboard fetch error:', err)
             }
             setLoading(false)
         }
