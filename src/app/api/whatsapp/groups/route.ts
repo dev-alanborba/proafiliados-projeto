@@ -95,11 +95,14 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'No active session' }, { status: 400 })
     }
 
+    // Map frontend field name to actual database column name
+    const dbColumn = field === 'monitored' ? 'is_monitored' : field;
+
     // Upsert group config
     const { error } = await supabase
         .from('groups')
         .upsert(
-            { session_id: session.id, group_jid, name: group_name ?? '', [field]: value },
+            { session_id: session.id, group_jid, name: group_name ?? '', [dbColumn]: value },
             { onConflict: 'session_id,group_jid' }
         )
 
