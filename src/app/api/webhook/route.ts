@@ -1,7 +1,13 @@
-import { createClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 import { evolution } from '@/lib/evolution'
+
+// Create a global admin client to bypass RLS for webhook background processing
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+)
 
 // Regex for common affiliate platforms
 const AFFILIATE_PATTERNS = [
@@ -60,7 +66,6 @@ export async function POST(request: Request) {
 
     // DEBUG TELEMETRY: Log incoming payloads to Supabase to debug
     try {
-        const supabase = await createClient()
         await supabase.from('captured_links').insert({
             link_url: 'DEBUG_PAYLOAD',
             raw_message: body,
@@ -107,118 +112,114 @@ export async function POST(request: Request) {
     const urlRegex = /(https?:\/\/[^\s]+)/g
     const links = content.match(urlRegex)
 
-    if (links) {
-        const supabase = await createClient()
+    // Localiza de qual sessão veio este webhook
+    const { data: session, error: sessionErr } = await supabase
+        .from('sessions')
+        .select('id, user_id')
+        .eq('instance_name', instanceName)
+        .single()
 
-        // Localiza de qual sessão veio este webhook
-        const { data: session } = await supabase
-            .from('sessions')
-            .select('id, user_id')
-            .eq('instance_name', instanceName)
+    if (session) {
+        // 1. O grupo que enviou a mensagem é um Grupo Origem (is_destination = false && is_monitored = true)?
+        const { data: originGroup } = await supabase
+            .from('groups')
+            .select('id')
+            .eq('session_id', session.id)
+            .eq('group_jid', groupJid)
+            .eq('is_monitored', true)
+            .eq('is_destination', false)
             .single()
 
-        if (session) {
-            // 1. O grupo que enviou a mensagem é um Grupo Origem (is_destination = false && is_monitored = true)?
-            const { data: originGroup } = await supabase
+        // Se não for origem, ignoramos completamente
+        if (!originGroup) return NextResponse.json({ status: 'ignored_not_origin' })
+
+        // Busca as configurações de afiliado do usuário
+        const { data: config } = await supabase
+            .from('affiliate_configs')
+            .select('*')
+            .eq('user_id', session.user_id)
+            .maybeSingle()
+
+        const userConfigs = config || {}
+
+        // 2. Transforma (Clona) a Mensagem Original
+        let mensagemConvertida = content
+        let encontrouOferta = false
+        let plataformaDetectada = 'Other'
+
+        for (const linkUrl of links) {
+            // Descobre a plataforma
+            for (const p of AFFILIATE_PATTERNS) {
+                if (p.pattern.test(linkUrl)) {
+                    plataformaDetectada = p.name
+                    encontrouOferta = true
+                    break
+                }
+            }
+
+            // Troca o Link (Motor de Clonagem) - replaceAll para cobrir múltiplas ocorrências do mesmo link
+            const novoLink = converteLinkParaAfiliado(linkUrl, userConfigs, plataformaDetectada)
+            mensagemConvertida = mensagemConvertida.replaceAll(linkUrl, novoLink)
+        }
+
+        // Apenas repassamos se de fato tinha um link de oferta reconhecido
+        if (encontrouOferta) {
+            // 3. Salva a Captura para as métricas do cliente
+            await supabase.from('captured_links').insert({
+                session_id: session.id,
+                group_jid: groupJid,
+                sender_name: senderName,
+                sender_number: senderNumber,
+                content: mensagemConvertida, // Salva o texto que foi alterado!
+                link_url: links[0], // O link base que foi detectado
+                platform: plataformaDetectada,
+                raw_message: messageData
+            })
+
+            // 4. MANDA PARA OS DESTINOS (OS GRUPOS VIP DO CLIENTE)
+            const { data: destinationGroups } = await supabase
                 .from('groups')
-                .select('id')
+                .select('group_jid')
                 .eq('session_id', session.id)
-                .eq('group_jid', groupJid)
                 .eq('is_monitored', true)
-                .eq('is_destination', false)
-                .single()
+                .eq('is_destination', true)
 
-            // Se não for origem, ignoramos completamente
-            if (!originGroup) return NextResponse.json({ status: 'ignored_not_origin' })
+            if (destinationGroups && destinationGroups.length > 0) {
+                // Prepara o disparo de imagem se houver
+                const isImage = !!message.imageMessage
+                const isVideo = !!message.videoMessage
+                const isMedia = isImage || isVideo || !!message.documentMessage
 
-            // Busca as configurações de afiliado do usuário
-            const { data: config } = await supabase
-                .from('affiliate_configs')
-                .select('*')
-                .eq('user_id', session.user_id)
-                .maybeSingle()
-
-            const userConfigs = config || {}
-
-            // 2. Transforma (Clona) a Mensagem Original
-            let mensagemConvertida = content
-            let encontrouOferta = false
-            let plataformaDetectada = 'Other'
-
-            for (const linkUrl of links) {
-                // Descobre a plataforma
-                for (const p of AFFILIATE_PATTERNS) {
-                    if (p.pattern.test(linkUrl)) {
-                        plataformaDetectada = p.name
-                        encontrouOferta = true
-                        break
+                let base64Media: string | null = null;
+                if (isMedia) {
+                    try {
+                        base64Media = await evolution.getBase64Media(instanceName, message)
+                    } catch (err) {
+                        console.error('Falha ao baixar mídia da mensagem original:', err)
                     }
                 }
 
-                // Troca o Link (Motor de Clonagem) - replaceAll para cobrir múltiplas ocorrências do mesmo link
-                const novoLink = converteLinkParaAfiliado(linkUrl, userConfigs, plataformaDetectada)
-                mensagemConvertida = mensagemConvertida.replaceAll(linkUrl, novoLink)
-            }
+                for (const dest of destinationGroups) {
+                    const destJid = dest.group_jid
+                    if (!destJid) continue
+                    try {
+                        if (base64Media) {
+                            // Evolution API precisa do Media Base64 no formato mime
+                            // O getBase64Media da Evolution v2 costuma retornar a string em base64 pura ou prefixada com data:mime
+                            const prefix = base64Media.startsWith('data:') ? '' :
+                                isImage ? 'data:image/jpeg;base64,' :
+                                    isVideo ? 'data:video/mp4;base64,' : 'data:application/octet-stream;base64,';
 
-            // Apenas repassamos se de fato tinha um link de oferta reconhecido
-            if (encontrouOferta) {
-                // 3. Salva a Captura para as métricas do cliente
-                await supabase.from('captured_links').insert({
-                    session_id: session.id,
-                    group_jid: groupJid,
-                    sender_name: senderName,
-                    sender_number: senderNumber,
-                    content: mensagemConvertida, // Salva o texto que foi alterado!
-                    link_url: links[0], // O link base que foi detectado
-                    platform: plataformaDetectada,
-                    raw_message: messageData
-                })
+                            const mediaUrl = prefix + base64Media
+                            const mediaType = isImage ? 'image' : isVideo ? 'video' : 'document'
 
-                // 4. MANDA PARA OS DESTINOS (OS GRUPOS VIP DO CLIENTE)
-                const { data: destinationGroups } = await supabase
-                    .from('groups')
-                    .select('group_jid')
-                    .eq('session_id', session.id)
-                    .eq('is_monitored', true)
-                    .eq('is_destination', true)
-
-                if (destinationGroups && destinationGroups.length > 0) {
-                    // Prepara o disparo de imagem se houver
-                    const isImage = !!message.imageMessage
-                    const isVideo = !!message.videoMessage
-                    const isMedia = isImage || isVideo || !!message.documentMessage
-
-                    let base64Media: string | null = null;
-                    if (isMedia) {
-                        try {
-                            base64Media = await evolution.getBase64Media(instanceName, message)
-                        } catch (err) {
-                            console.error('Falha ao baixar mídia da mensagem original:', err)
+                            await evolution.sendMedia(instanceName, destJid, mediaType, mediaUrl, mensagemConvertida)
+                        } else {
+                            // Envio de Tráfego de Link normal (sem mídia)
+                            await evolution.sendText(instanceName, destJid, mensagemConvertida)
                         }
-                    }
-
-                    for (const dest of destinationGroups) {
-                        const destJid = dest.group_jid
-                        if (!destJid) continue
-                        try {
-                            if (base64Media) {
-                                // Evolution API precisa do Media Base64 no formato mime
-                                // O getBase64Media da Evolution v2 costuma retornar a string em base64 pura ou prefixada com data:mime
-                                const prefix = base64Media.startsWith('data:') ? '' :
-                                    isImage ? 'data:image/jpeg;base64,' :
-                                        isVideo ? 'data:video/mp4;base64,' : 'data:application/octet-stream;base64,';
-
-                                const mediaUrl = prefix + base64Media
-                                const mediaType = isImage ? 'image' : isVideo ? 'video' : 'document'
-
-                                await evolution.sendMedia(instanceName, destJid, mediaType, mediaUrl, mensagemConvertida)
-                            } else {
-                                // Envio de Tráfego de Link normal (sem mídia)
-                                await evolution.sendText(instanceName, destJid, mensagemConvertida)
-                            }
-                        } catch (err) {
-                            console.error('Falha ao retransmitir para destino VIP:', err)
-                        }
+                    } catch (err) {
+                        console.error('Falha ao retransmitir para destino VIP:', err)
                     }
                 }
             }
