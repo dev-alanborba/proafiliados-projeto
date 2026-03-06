@@ -19,9 +19,9 @@ import { Toast } from '@/components/Toast'
 const PIX_EXPIRY_SECONDS = 600 // 10 minutes
 
 const plans = {
-    starter:      { name: 'Starter',      price: '47',  features: ['1 Sessão WhatsApp', '10 Grupos Monitorados'] },
-    professional: { name: 'Professional', price: '97',  features: ['3 Sessões WhatsApp', '50 Grupos Monitorados'] },
-    enterprise:   { name: 'Enterprise',   price: '197', features: ['10 Sessões WhatsApp', 'Grupos Ilimitados'] }
+    starter: { name: 'Starter', price: '47', features: ['1 Sessão WhatsApp', '10 Grupos Monitorados'] },
+    professional: { name: 'Professional', price: '97', features: ['3 Sessões WhatsApp', '50 Grupos Monitorados'] },
+    enterprise: { name: 'Enterprise', price: '197', features: ['10 Sessões WhatsApp', 'Grupos Ilimitados'] }
 }
 
 function CheckoutContent() {
@@ -30,14 +30,26 @@ function CheckoutContent() {
     const planId = searchParams.get('plan') || 'starter'
     const currentPlan = plans[planId as keyof typeof plans] || plans.starter
 
-    const [loading, setLoading]       = useState(false)
-    const [status, setStatus]         = useState<'pending' | 'processing' | 'waiting_payment' | 'success'>(
+    const [loading, setLoading] = useState(false)
+    const [status, setStatus] = useState<'pending' | 'processing' | 'waiting_payment' | 'success'>(
         searchParams.get('payment') === 'success' ? 'success' : 'pending'
     )
     const [qrCodeData, setQrCodeData] = useState<{ base64: string; copyPaste: string } | null>(null)
-    const [paymentId, setPaymentId]   = useState<string | null>(null)
-    const [countdown, setCountdown]   = useState(PIX_EXPIRY_SECONDS)
-    const [toast, setToast]           = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null)
+    const [paymentId, setPaymentId] = useState<string | null>(null)
+    const [countdown, setCountdown] = useState(PIX_EXPIRY_SECONDS)
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null)
+    const [cpf, setCpf] = useState('')
+
+    // Format CPF as user types: xxx.xxx.xxx-xx
+    const handleCpfChange = (value: string) => {
+        const digits = value.replace(/\D/g, '').slice(0, 11)
+        let formatted = digits
+        if (digits.length > 9) formatted = `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`
+        else if (digits.length > 6) formatted = `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`
+        else if (digits.length > 3) formatted = `${digits.slice(0, 3)}.${digits.slice(3)}`
+        setCpf(formatted)
+    }
+    const cpfDigits = cpf.replace(/\D/g, '')
 
     // ── Countdown timer ──────────────────────────────────────────────────────
     useEffect(() => {
@@ -88,6 +100,7 @@ function CheckoutContent() {
                     planId,
                     planName: currentPlan.name,
                     planPrice: currentPlan.price,
+                    docNumber: cpfDigits,
                 })
             })
 
@@ -118,7 +131,7 @@ function CheckoutContent() {
 
     const countdownMinutes = Math.floor(countdown / 60)
     const countdownSeconds = String(countdown % 60).padStart(2, '0')
-    const countdownPct     = (countdown / PIX_EXPIRY_SECONDS) * 100
+    const countdownPct = (countdown / PIX_EXPIRY_SECONDS) * 100
 
     if (status === 'success') {
         return (
@@ -267,19 +280,36 @@ function CheckoutContent() {
                             </div>
                         )}
 
-                        {/* Generate button */}
+                        {/* CPF Input + Generate button */}
                         {!qrCodeData && (
-                            <button
-                                onClick={handleConfirmPayment}
-                                disabled={loading || status === 'processing'}
-                                className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 group"
-                            >
-                                {status === 'processing' ? (
-                                    <><Loader2 className="w-5 h-5 animate-spin" /><span>Gerando PIX...</span></>
-                                ) : (
-                                    <><span>Gerar Código PIX</span><ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
-                                )}
-                            </button>
+                            <div className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-muted uppercase tracking-widest ml-4">CPF do Pagador</label>
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        placeholder="000.000.000-00"
+                                        value={cpf}
+                                        onChange={(e) => handleCpfChange(e.target.value)}
+                                        className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 px-6 text-sm font-bold text-white text-center placeholder:text-muted/50 focus:border-primary/50 focus:bg-black/60 transition-all outline-none tracking-widest"
+                                        maxLength={14}
+                                    />
+                                    {cpfDigits.length > 0 && cpfDigits.length !== 11 && (
+                                        <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest text-center">CPF deve ter 11 dígitos</p>
+                                    )}
+                                </div>
+                                <button
+                                    onClick={handleConfirmPayment}
+                                    disabled={loading || status === 'processing' || cpfDigits.length !== 11}
+                                    className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 group"
+                                >
+                                    {status === 'processing' ? (
+                                        <><Loader2 className="w-5 h-5 animate-spin" /><span>Gerando PIX...</span></>
+                                    ) : (
+                                        <><span>Gerar Código PIX</span><ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
+                                    )}
+                                </button>
+                            </div>
                         )}
 
                         <p className="text-[9px] text-center text-muted font-bold uppercase tracking-widest opacity-40">

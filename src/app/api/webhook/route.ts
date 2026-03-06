@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     const groupJid = messageData.key.remoteJid.includes('@g.us') ? messageData.key.remoteJid : null
     const instanceName = messageData.instance
 
-    if (!content) return NextResponse.json({ status: 'empty' })
+    if (!content || !instanceName) return NextResponse.json({ status: 'empty' })
 
     // Find links in content
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -147,15 +147,17 @@ export async function POST(request: Request) {
                     const isMedia = message.imageMessage || message.videoMessage || message.documentMessage
 
                     for (const dest of destinationGroups) {
+                        const destJid = dest.group_jid
+                        if (!destJid) continue
                         try {
                             if (isMedia) {
                                 // Evolution API precisa do Media Message convertido e baixado,
                                 // o que em produção pede que você baixe o Base64 que vem no payload,
                                 // enviando via 'sendMedia'. Como fallback de segurança, manda em texto puro:
-                                await evolution.sendText(instanceName, dest.group_jid, `📸 [Imagem Anexada]\n\n${mensagemConvertida}`)
+                                await evolution.sendText(instanceName, destJid, `📸 [Imagem Anexada]\n\n${mensagemConvertida}`)
                             } else {
                                 // Envio de Tráfego de Link normal
-                                await evolution.sendText(instanceName, dest.group_jid, mensagemConvertida)
+                                await evolution.sendText(instanceName, destJid, mensagemConvertida)
                             }
                         } catch (err) {
                             console.error('Falha ao retransmitir para destino VIP:', err)

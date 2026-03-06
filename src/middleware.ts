@@ -44,7 +44,14 @@ export async function middleware(request: NextRequest) {
     const isPremiumRoute = premiumRoutes.some(route => request.nextUrl.pathname.startsWith(route))
 
     if (user && isPremiumRoute) {
-        const isSubscribed = user.user_metadata?.subscription_status === 'active'
+        // Query the profiles table directly — this is where the webhook writes
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('subscription_status')
+            .eq('id', user.id)
+            .single()
+
+        const isSubscribed = profile?.subscription_status === 'active'
 
         if (!isSubscribed) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
