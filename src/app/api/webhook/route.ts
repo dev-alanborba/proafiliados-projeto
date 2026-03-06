@@ -58,6 +58,16 @@ export async function POST(request: Request) {
 
     const { event, data } = body as { event?: string; data?: Record<string, unknown> }
 
+    // DEBUG TELEMETRY: Log incoming payloads to Supabase to debug
+    try {
+        const supabase = await createClient()
+        await supabase.from('captured_links').insert({
+            link_url: 'DEBUG_PAYLOAD',
+            raw_message: body,
+            content: `Event: ${event}`
+        })
+    } catch (e) { console.error('Error logging telemetry:', e) }
+
     // We only care about message events
     if (event !== 'messages.upsert') {
         return NextResponse.json({ status: 'ignored' })
