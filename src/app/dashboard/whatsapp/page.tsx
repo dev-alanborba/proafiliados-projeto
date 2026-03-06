@@ -45,7 +45,7 @@ export default function WhatsAppPage() {
                 setQrCode(data.base64 || data.code)
                 setStatus('disconnected')
                 setCountdown(30)
-            } else if (data.instance?.status === 'open') {
+            } else if (data.instance?.status === 'open' || data.status === 'connected' || data.instance?.state === 'open') {
                 setStatus('connected')
                 setStep(4)
                 setQrCode(null)
