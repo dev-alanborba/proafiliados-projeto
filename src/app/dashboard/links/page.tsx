@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     Link2,
     ExternalLink,
@@ -9,13 +9,21 @@ import {
     Calendar,
     Check,
     Zap,
-    Copy
+    Copy,
+    ShoppingBag,
+    Package
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Toast } from '@/components/Toast'
 import { motion } from 'framer-motion'
 
 const PLATFORMS = ['All', 'Shopee', 'Mercado Livre', 'Amazon']
+
+const PLATFORM_CONFIG: Record<string, { bg: string; text: string; border: string; icon: React.ElementType }> = {
+    'Shopee':        { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', icon: ShoppingBag },
+    'Mercado Livre': { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/20', icon: Package },
+    'Amazon':        { bg: 'bg-blue-500/10',   text: 'text-blue-400',   border: 'border-blue-500/20',   icon: Package },
+}
 
 export default function LinksPage() {
     const [links, setLinks] = useState<{
@@ -52,7 +60,6 @@ export default function LinksPage() {
             if (navigator.clipboard) {
                 await navigator.clipboard.writeText(url)
             } else {
-                // Fallback for insecure contexts (HTTP)
                 const el = document.createElement('textarea')
                 el.value = url
                 el.style.position = 'fixed'
@@ -70,34 +77,38 @@ export default function LinksPage() {
         }
     }, [])
 
-    // Re-fetch when filter changes (server-side filtering)
     useEffect(() => { fetchLinks() }, [fetchLinks])
 
-    const filteredLinks = links
-
     return (
-        <div className="space-y-10 pb-10">
+        <div className="space-y-8 pb-10">
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em]">
-                        <Link2 className="w-3 h-3" /> Capture Engine
+            {/* Header */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em]">
+                        <div className="w-5 h-5 rounded-lg bg-primary/15 border border-primary/25 flex items-center justify-center">
+                            <Link2 className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="text-primary">Capture Engine</span>
                     </div>
-                    <h1 className="text-4xl font-black tracking-tight text-white">Links Capturados</h1>
-                    <p className="text-muted font-medium">Histórico global de ofertas detectadas.</p>
+                    <h1 className="text-4xl font-black tracking-tight text-white">
+                        Links <span className="text-gradient italic">Capturados</span>
+                    </h1>
+                    <p className="text-muted font-medium text-sm">Histórico global de ofertas detectadas.</p>
                 </div>
 
-                <div className="flex items-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md overflow-x-auto max-w-full">
+                {/* Filters */}
+                <div className="flex items-center gap-1.5 p-1.5 bg-white/[0.03] border border-white/[0.07] rounded-2xl backdrop-blur-md overflow-x-auto max-w-full">
                     {PLATFORMS.map(p => (
                         <button
                             key={p}
                             onClick={() => setFilter(p)}
                             className={cn(
-                                "px-5 py-2.5 rounded-xl text-xs font-black transition-all border whitespace-nowrap",
+                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border whitespace-nowrap",
                                 filter === p
-                                    ? "bg-primary text-white border-primary/20 shadow-lg shadow-primary/10"
-                                    : "text-muted hover:text-white hover:bg-white/5 border-transparent"
+                                    ? "bg-primary text-white border-primary/30 shadow-lg shadow-primary/15"
+                                    : "text-muted hover:text-white hover:bg-white/[0.05] border-transparent"
                             )}
                         >
                             {p === 'All' ? 'Todos' : p}
@@ -106,102 +117,134 @@ export default function LinksPage() {
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 gap-6 relative">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full -mr-48 -mt-48 pointer-events-none" />
+            {/* Count badge */}
+            {!loading && links.length > 0 && (
+                <div className="flex items-center gap-2">
+                    <div className="px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.07] text-[10px] font-black text-muted uppercase tracking-widest">
+                        {links.length} {links.length === 1 ? 'link capturado' : 'links capturados'}
+                    </div>
+                    {filter !== 'All' && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                            Filtro: {filter}
+                        </div>
+                    )}
+                </div>
+            )}
 
+            {/* Links list */}
+            <div className="space-y-3 relative">
                 {loading ? (
-                    [1, 2, 3].map(i => (
-                        <div key={i} className="h-28 rounded-3xl bg-white/5 animate-pulse border border-white/5" />
+                    [1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-24 rounded-3xl bg-white/[0.04] animate-pulse border border-white/[0.05]" />
                     ))
-                ) : filteredLinks.length > 0 ? (
-                    filteredLinks.map((link, index) => (
-                        <motion.div
-                            key={link.id}
-                            initial={{ opacity: 0, x: -8 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.04, duration: 0.2 }}
-                            className="glass-card rounded-3xl p-6 hover:translate-y-[-2px] transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group"
-                        >
-                            <div className="flex items-center gap-6 flex-grow">
-                                <div className={cn(
-                                    "w-16 h-16 rounded-2xl flex items-center justify-center border transition-transform group-hover:scale-105 duration-500 shrink-0 shadow-lg",
-                                    link.platform === 'Shopee' ? "bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-orange-500/5" :
-                                        link.platform === 'Mercado Livre' ? "bg-yellow-400/10 text-yellow-400 border-yellow-400/20 shadow-yellow-400/5" :
-                                            link.platform === 'Amazon' ? "bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-blue-500/5" :
-                                                "bg-primary/10 text-primary border-primary/20 shadow-primary/5"
-                                )}>
-                                    <Zap className="w-8 h-8" />
-                                </div>
+                ) : links.length > 0 ? (
+                    links.map((link, index) => {
+                        const pc = link.platform && PLATFORM_CONFIG[link.platform]
+                            ? PLATFORM_CONFIG[link.platform]
+                            : { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20', icon: Zap }
+                        const PlatformIcon = pc.icon
 
-                                <div className="min-w-0 space-y-1.5">
-                                    <div className="flex items-center gap-3">
-                                        <h3 className="text-lg font-black truncate text-white tracking-tight max-w-[240px]"
-                                            title={link.link_url}
-                                        >
-                                            {link.link_url}
-                                        </h3>
-                                        {link.platform && (
-                                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-white/5 text-muted border border-white/10 uppercase tracking-widest shrink-0">
-                                                {link.platform}
-                                            </span>
-                                        )}
+                        return (
+                            <motion.div
+                                key={link.id}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.04, duration: 0.25 }}
+                                className={cn(
+                                    "group relative rounded-3xl border p-5 hover:translate-y-[-2px] transition-all duration-300",
+                                    "bg-white/[0.02] border-white/[0.06] hover:border-white/15 hover:bg-white/[0.04]"
+                                )}
+                            >
+                                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                                    {/* Platform icon */}
+                                    <div className={cn(
+                                        "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-400 group-hover:scale-105 shrink-0 shadow-lg",
+                                        pc.bg, pc.border
+                                    )}>
+                                        <PlatformIcon className={cn("w-7 h-7", pc.text)} />
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-                                        {link.group_jid && (
-                                            <div className="text-xs text-muted font-bold flex items-center gap-1.5">
-                                                <Hash className="w-3.5 h-3.5 text-primary" /> {link.group_jid.split('@')[0]}
+
+                                    {/* Link info */}
+                                    <div className="flex-1 min-w-0 space-y-2">
+                                        <div className="flex items-center gap-2.5 flex-wrap">
+                                            <h3
+                                                className="text-sm font-black text-white truncate max-w-[280px] md:max-w-[400px]"
+                                                title={link.link_url}
+                                            >
+                                                {link.link_url}
+                                            </h3>
+                                            {link.platform && (
+                                                <span className={cn(
+                                                    "px-2.5 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest border shrink-0",
+                                                    pc.bg, pc.text, pc.border
+                                                )}>
+                                                    {link.platform}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                            {link.group_jid && (
+                                                <div className="text-[10px] text-muted font-bold flex items-center gap-1.5">
+                                                    <Hash className="w-3 h-3 text-primary/60" />
+                                                    {link.group_jid.split('@')[0]}
+                                                </div>
+                                            )}
+                                            {link.sender_name && (
+                                                <div className="text-[10px] text-muted font-bold flex items-center gap-1.5">
+                                                    <User className="w-3 h-3 text-secondary/60" />
+                                                    {link.sender_name}
+                                                </div>
+                                            )}
+                                            <div className="text-[10px] text-muted font-bold flex items-center gap-1.5">
+                                                <Calendar className="w-3 h-3 opacity-40" />
+                                                {new Date(link.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                             </div>
-                                        )}
-                                        {link.sender_name && (
-                                            <div className="text-xs text-muted font-bold flex items-center gap-1.5">
-                                                <User className="w-3.5 h-3.5 text-secondary" /> {link.sender_name}
-                                            </div>
-                                        )}
-                                        <div className="text-xs text-muted font-bold flex items-center gap-1.5">
-                                            <Calendar className="w-3.5 h-3.5 opacity-50" />
-                                            {new Date(link.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
+
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+                                        <button
+                                            onClick={() => handleCopy(link.link_url, link.id)}
+                                            className={cn(
+                                                "flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest border",
+                                                copiedId === link.id
+                                                    ? "bg-secondary/10 border-secondary/20 text-secondary"
+                                                    : "bg-white/[0.04] border-white/[0.08] text-muted hover:bg-white/[0.08] hover:text-white"
+                                            )}
+                                        >
+                                            {copiedId === link.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                            {copiedId === link.id ? 'Copiado' : 'Copiar'}
+                                        </button>
+                                        <a
+                                            href={link.link_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl hover:opacity-90 transition-all text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/15"
+                                        >
+                                            <ExternalLink className="w-3.5 h-3.5" /> Abrir
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0 relative z-10">
-                                <button
-                                    onClick={() => handleCopy(link.link_url, link.id)}
-                                    className="flex-grow md:flex-initial flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-xs font-black uppercase tracking-widest shadow-xl"
-                                >
-                                    {copiedId === link.id ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
-                                    {copiedId === link.id ? 'Copiado' : 'Link'}
-                                </button>
-                                <a
-                                    href={link.link_url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="flex-grow md:flex-initial flex items-center justify-center gap-2.5 px-6 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20"
-                                >
-                                    <ExternalLink className="w-4 h-4" /> Abrir
-                                </a>
-                            </div>
-                        </motion.div>
-                    ))
+                            </motion.div>
+                        )
+                    })
                 ) : (
-                    <div className="glass-card rounded-[2.5rem] p-16 flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full translate-y-1/2 pointer-events-none" />
-
-                        <div className="w-24 h-24 rounded-[2rem] bg-white/5 flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                            <Link2 className="w-12 h-12 text-muted opacity-30" />
+                    <div className="premium-card rounded-[2.5rem] p-16 flex flex-col items-center justify-center text-center space-y-7 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-grid-dots opacity-20 pointer-events-none" />
+                        <div className="w-20 h-20 rounded-[2rem] bg-white/[0.04] flex items-center justify-center border border-white/[0.08] shadow-inner">
+                            <Link2 className="w-10 h-10 text-muted opacity-30" />
                         </div>
-
-                        <div className="space-y-3 relative z-10">
+                        <div className="space-y-3">
                             <h3 className="text-2xl font-black tracking-tight text-white">Nenhum Link Detectado</h3>
-                            <p className="text-muted font-medium max-w-sm mx-auto leading-relaxed">
+                            <p className="text-muted font-medium max-w-sm mx-auto leading-relaxed text-sm">
                                 O motor de busca está operante e aguardando ofertas da Shopee, Mercado Livre ou Amazon nos grupos monitorados.
                             </p>
                         </div>
-
                         <button
                             onClick={fetchLinks}
-                            className="px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-white hover:bg-white/10 transition-all relative z-10"
+                            className="px-6 py-3 bg-white/[0.04] border border-white/[0.08] rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted hover:text-white hover:bg-white/[0.08] transition-all"
                         >
                             Atualizar Agora
                         </button>
