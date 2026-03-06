@@ -3,40 +3,42 @@ root, but it may not be correct.
 No linha:1 caractere:1
 + & "C:\Program Files\nodejs/node.exe" "C:\Program 
 Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (ÔÜá Warning    
-: Ne...not be correct.:String) [], RemoteException
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ÔÜá Warning 
+   : Ne...not be correct.:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
- We detected multiple lockfiles and selected the directory 
-of C:\Users\sauem\package-lock.json as the root directory.
+ We detected multiple lockfiles and selected the 
+directory of C:\Users\sauem\package-lock.json as the 
+root directory.
  To silence this warning, set `turbopack.root` in your 
-Next.js config, or consider removing one of the lockfiles if 
-it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-
-config-js/turbopack#root-directory for more information.
+Next.js config, or consider removing one of the 
+lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/n
+ext-config-js/turbopack#root-directory for more 
+information.
  Detected additional lockfiles: 
-   * C:\Users\sauem\.gemini\antigravity\scratch\proafiliados\
-package-lock.json
+   * C:\Users\sauem\.gemini\antigravity\scratch\proafilia
+dos\package-lock.json
 
 Ôû▓ Next.js 16.1.6 (Turbopack)
 - Environments: .env.local
 - Experiments (use with caution):
   ┬À optimizePackageImports
 
-ÔÜá The "middleware" file convention is deprecated. Please 
-use "proxy" instead. Learn more: 
+ÔÜá The "middleware" file convention is deprecated. 
+Please use "proxy" instead. Learn more: 
 https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 5.4s
+Ô£ô Compiled successfully in 5.7s
   Running TypeScript ...
   Collecting page data using 15 workers ...
   Generating static pages using 15 workers (0/23) ...
   Generating static pages using 15 workers (5/23) 
   Generating static pages using 15 workers (11/23) 
   Generating static pages using 15 workers (17/23) 
-Ô£ô Generating static pages using 15 workers (23/23) in 573.2ms
+Ô£ô Generating static pages using 15 workers (23/23) in 539.9ms
   Finalizing page optimization ...
 
 Route (app)
