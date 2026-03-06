@@ -25,8 +25,11 @@ const evolutionApi = axios.create({
 // Only allow alphanumeric, hyphens and underscores to prevent path traversal
 const SAFE_INSTANCE_REGEX = /^[a-zA-Z0-9_-]{1,64}$/
 function validateInstanceName(name: string): void {
+    if (!name || typeof name !== 'string') {
+        throw new Error(`Instance name must be a string, got: ${typeof name}`)
+    }
     if (!SAFE_INSTANCE_REGEX.test(name)) {
-        throw new Error(`Invalid instanceName: "${name}"`)
+        throw new Error(`Invalid instanceName format: "${name}". Only alphanumeric, hyphens and underscores are allowed (max 64 chars).`)
     }
 }
 
@@ -36,7 +39,8 @@ export const evolution = {
         const { data } = await evolutionApi.post('/instance/create', {
             instanceName,
             token: instanceName,
-            qrcode: true
+            qrcode: true,
+            integration: "WHATSAPP-BAILEYS"
         })
         return data
     },

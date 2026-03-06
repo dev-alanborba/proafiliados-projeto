@@ -22,26 +22,39 @@ export async function GET() {
     if (!instanceName) {
         // Create new instance name based on user ID
         instanceName = `user_${user.id.split('-')[0]}`
+        console.log(`[WhatsApp] Creating new instance: ${instanceName}`)
 
-        // Create instance in Evolution API
         try {
+            // Create instance in Evolution API
             await evolution.createInstance(instanceName)
-        } catch {
-            // Instance might already exist
+            console.log(`[WhatsApp] Instance ${instanceName} created in Evolution API`)
+        } catch (err) {
+            console.error(`[WhatsApp] Failed to create instance ${instanceName}:`, err)
+            // Instance might already exist, so we continue
         }
 
         // Save session in Supabase
-        await supabase.from('sessions').insert({
+        const { error: insertError } = await supabase.from('sessions').insert({
             user_id: user.id,
             instance_name: instanceName,
             status: 'disconnected'
         })
+
+        if (insertError) {
+            console.error(`[WhatsApp] Failed to save session to DB:`, insertError)
+            return NextResponse.json({ error: 'Erro ao salvar sessão no banco de dados' }, { status: 500 })
+        }
     }
 
     try {
+        console.log(`[WhatsApp] Fetching QR Code for instance: ${instanceName}`)
         const qrData = await evolution.getQrCode(instanceName)
         return NextResponse.json(qrData)
-    } catch (error) {
-        return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+    } catch (err) {
+        console.error(`[WhatsApp] Error fetching QR Code for ${instanceName}:`, err)
+        return NextResponse.json({
+            error: (err as Error).message,
+            details: 'Certifique-se que o servidor Evolution API está rodando e a API Key está correta.'
+        }, { status: 500 })
     }
 }
