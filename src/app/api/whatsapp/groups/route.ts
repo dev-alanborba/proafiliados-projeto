@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase-server'
 import { evolution } from '@/lib/evolution'
 import { NextResponse, NextRequest } from 'next/server'
 
-// Validates WhatsApp group JID format (can contain numbers, letters, and hyphens)
-const GROUP_JID_REGEX = /^[a-zA-Z0-9-]+@g\.us$/
+// We relax the regex to allow any non-empty string, because Evolution API returns IDs that vary in format 
+// (e.g., standard numbers, hyphens, and potentially other special characters).
+const GROUP_JID_REGEX = /^.+$/
 
 export async function GET() {
     const supabase = await createClient()
