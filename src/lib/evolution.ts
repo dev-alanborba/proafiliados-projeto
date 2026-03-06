@@ -13,8 +13,11 @@ export interface EvolutionGroup {
     restrict?: boolean
 }
 
+// Strips trailing /v2 or slashes just in case the env var was configured with it
+const sanitizedBaseUrl = process.env.EVOLUTION_API_URL?.replace(/\/v2\/?$/, '')?.replace(/\/$/, '') || ''
+
 const evolutionApi = axios.create({
-    baseURL: process.env.EVOLUTION_API_URL,
+    baseURL: sanitizedBaseUrl,
     headers: {
         'apikey': process.env.EVOLUTION_API_KEY,
         'Content-Type': 'application/json'
