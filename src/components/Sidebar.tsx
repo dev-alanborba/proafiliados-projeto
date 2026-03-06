@@ -14,7 +14,8 @@ import {
     Zap,
     CalendarClock,
     ChevronRight,
-    Sparkles
+    Sparkles,
+    Settings
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { createClient } from '../lib/supabase'
@@ -26,6 +27,7 @@ const menuItems = [
     { label: 'WhatsApp', mobileLabel: 'WA', icon: MessageSquare, href: '/dashboard/whatsapp', color: 'text-emerald-400' },
     { label: 'Grupos', mobileLabel: 'Grupos', icon: Users, href: '/dashboard/grupos', color: 'text-blue-400' },
     { label: 'Links', mobileLabel: 'Links', icon: Link2, href: '/dashboard/links', color: 'text-amber-400' },
+    { label: 'Configurações', mobileLabel: 'Config', icon: Settings, href: '/dashboard/configuracoes', color: 'text-zinc-400' },
     { label: 'Relatórios', mobileLabel: 'Stats', icon: BarChart3, href: '/dashboard/relatorios', color: 'text-rose-400' },
 ]
 

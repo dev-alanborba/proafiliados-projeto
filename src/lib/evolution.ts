@@ -104,7 +104,7 @@ export const evolution = {
     },
 
     // Method to send media (images/videos)
-    sendMedia: async (instanceName: string, number: string, mediaType: 'image' | 'video' | 'document', mediaUrl: string, caption?: string) => {
+    sendMedia: async (instanceName: string, number: string, mediaType: 'image' | 'video' | 'document' | 'audio', mediaUrl: string, caption?: string) => {
         validateInstanceName(instanceName)
         const { data } = await evolutionApi.post(`/message/sendMedia/${instanceName}`, {
             number,
@@ -119,5 +119,15 @@ export const evolution = {
             }
         })
         return data
+    },
+
+    // Method to get base64 media from intercepted message
+    getBase64Media: async (instanceName: string, messageData: any) => {
+        validateInstanceName(instanceName)
+        const { data } = await evolutionApi.post(`/chat/getBase64FromMediaMessage/${instanceName}`, {
+            message: messageData
+        })
+        // Evolution API usually returns { base64: "..." }
+        return data.base64
     }
 }

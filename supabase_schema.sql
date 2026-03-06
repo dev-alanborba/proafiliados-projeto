@@ -137,6 +137,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+-- Check and create trigger
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'on_auth_user_created') THEN
+    CREATE TRIGGER on_auth_user_created
+      AFTER INSERT ON auth.users
+      FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+  END IF;
+END
+$$;
+
+-- Affiliate Configurations table
+CREATE TABLE IF NOT EXISTS public.affiliate_configs (
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE PRIMARY KEY,
+  shopee_app_id TEXT,
+  shopee_app_secret TEXT,
+  amazon_tag TEXT,
+  mercadolivre_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Affiliate Configs RLS Policies
+ALTER TABLE public.affiliate_configs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own affiliate configs" ON public.affiliate_configs FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own affiliate configs" ON public.affiliate_configs FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own affiliate configs" ON public.affiliate_configs FOR UPDATE USING (auth.uid() = user_id);
