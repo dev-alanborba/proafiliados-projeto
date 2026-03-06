@@ -9,10 +9,10 @@ export async function GET() {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's session IDs
+    // Get user's session IDs and status
     const { data: sessions } = await supabase
         .from('sessions')
-        .select('id')
+        .select('id, status')
         .eq('user_id', user.id)
 
     if (!sessions || sessions.length === 0) {
@@ -66,7 +66,9 @@ export async function GET() {
     }
     const platformData = Object.entries(platformCounts).map(([name, value]) => ({ name, value }))
 
-    return NextResponse.json({ totalLinks, groups, chartData, platformData })
+    const isConnected = sessions.some(s => s.status === 'connected' || s.status === 'open')
+
+    return NextResponse.json({ totalLinks, groups, chartData, platformData, isConnected })
 }
 
 function buildEmptyChart() {

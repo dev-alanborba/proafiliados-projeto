@@ -95,6 +95,7 @@ export default function DashboardPage() {
     const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<string | null>(null)
     const [syncedAt, setSyncedAt] = useState<string | null>(null)
     const [stats, setStats] = useState({ totalLinks: 0, groups: 0, messages: 0, conversions: 0 })
+    const [isConnected, setIsConnected] = useState<boolean>(false)
     const [chartData, setChartData] = useState<{ name: string; links: number }[]>([])
     const [recentLinks, setRecentLinks] = useState<{ id: string; link_url: string; platform?: string; group_jid?: string; created_at: string }[]>([])
 
@@ -124,6 +125,7 @@ export default function DashboardPage() {
                             const statsData = await statsRes.json()
                             setStats(prev => ({ ...prev, totalLinks: statsData.totalLinks ?? 0, groups: statsData.groups ?? 0 }))
                             setChartData(statsData.chartData ?? [])
+                            setIsConnected(statsData.isConnected ?? false)
                         }
                         if (linksRes.ok) {
                             const linksData = await linksRes.json()
@@ -342,7 +344,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Onboarding */}
-            {hasNoData && (
+            {hasNoData && !isConnected && (
                 <div className="bento-card p-8 relative group">
                     <div className="inner-glow" />
                     <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
@@ -358,6 +360,29 @@ export default function DashboardPage() {
                             className="px-8 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-lg shadow-primary/25 hover:opacity-95 transition-all whitespace-nowrap"
                         >
                             Conectar WhatsApp
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {hasNoData && isConnected && (
+                <div className="bento-card p-8 relative group">
+                    <div className="inner-glow" />
+                    <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+                        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-secondary/20 to-primary/10 border border-secondary/20 flex items-center justify-center shrink-0">
+                            <Sparkles className="w-10 h-10 text-secondary" />
+                        </div>
+                        <div className="flex-1 text-center lg:text-left space-y-3">
+                            <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">Conexão Ativa!</h2>
+                            <p className="text-sm text-muted font-medium leading-relaxed max-w-xl">
+                                Seu robô está online. Vá até a aba Grupos para marcar quais grupos ele deve monitorar (Espiões) e para quais ele deve disparar suas mensagens de afiliado (VIP).
+                            </p>
+                        </div>
+                        <Link
+                            href="/dashboard/grupos"
+                            className="px-8 py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-lg shadow-secondary/25 hover:opacity-95 transition-all whitespace-nowrap"
+                        >
+                            Gerenciar Grupos
                         </Link>
                     </div>
                 </div>
