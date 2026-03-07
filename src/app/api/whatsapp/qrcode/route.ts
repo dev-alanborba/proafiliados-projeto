@@ -32,7 +32,7 @@ export async function GET() {
             // Set Webhook for the instance
             const webhookSecret = process.env.WEBHOOK_SECRET || ''
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}` || 'http://localhost:3000'
-            const webhookUrl = `${appUrl}/api/webhook?secret=${webhookSecret}`
+            const webhookUrl = `${appUrl}/api/webhook?secret=${encodeURIComponent(webhookSecret)}`
             await evolution.setWebhook(instanceName, webhookUrl)
             console.log(`[WhatsApp] Webhook configured for instance ${instanceName}`)
         } catch (err) {
