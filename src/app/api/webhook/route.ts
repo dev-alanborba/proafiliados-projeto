@@ -120,6 +120,7 @@ export async function POST(request: Request) {
         .single()
 
     if (session) {
+        console.log(`[WEBHOOK TRACE] Sessão encontrada: ${session.id}`)
         // 1. O grupo que enviou a mensagem é um Grupo Origem (is_destination = false && is_monitored = true)?
         const { data: originGroup } = await supabase
             .from('groups')
@@ -131,7 +132,12 @@ export async function POST(request: Request) {
             .single()
 
         // Se não for origem, ignoramos completamente
-        if (!originGroup) return NextResponse.json({ status: 'ignored_not_origin' })
+        if (!originGroup) {
+            console.log(`[WEBHOOK TRACE] Grupo ${groupJid} ignorado (não é origem monitorado).`)
+            return NextResponse.json({ status: 'ignored_not_origin', groupJid })
+        }
+
+        console.log(`[WEBHOOK TRACE] Grupo origem validado. Consultando links do afiliado...`)
 
         // Busca as configurações de afiliado do usuário
         const { data: config } = await supabase
@@ -162,6 +168,8 @@ export async function POST(request: Request) {
             mensagemConvertida = mensagemConvertida.replaceAll(linkUrl, novoLink)
         }
 
+        console.log(`[WEBHOOK TRACE] Oferta encontrada? ${encontrouOferta}. Plataforma: ${plataformaDetectada}`)
+
         // Apenas repassamos se de fato tinha um link de oferta reconhecido
         if (encontrouOferta) {
             // 3. Salva a Captura para as métricas do cliente
@@ -176,6 +184,8 @@ export async function POST(request: Request) {
                 raw_message: messageData
             })
 
+            console.log(`[WEBHOOK TRACE] Log de conversão criado. Buscando grupos de destino...`)
+
             // 4. MANDA PARA OS DESTINOS (OS GRUPOS VIP DO CLIENTE)
             const { data: destinationGroups } = await supabase
                 .from('groups')
@@ -185,6 +195,7 @@ export async function POST(request: Request) {
                 .eq('is_destination', true)
 
             if (destinationGroups && destinationGroups.length > 0) {
+                console.log(`[WEBHOOK TRACE] Multiplicando para ${destinationGroups.length} grupos de destino.`)
                 // Prepara o disparo de imagem se houver
                 const isImage = !!message.imageMessage
                 const isVideo = !!message.videoMessage
@@ -195,7 +206,7 @@ export async function POST(request: Request) {
                     try {
                         base64Media = await evolution.getBase64Media(instanceName, message)
                     } catch (err) {
-                        console.error('Falha ao baixar mídia da mensagem original:', err)
+                        console.error('[WEBHOOK TRACE] Falha ao baixar mídia da original:', err)
                     }
                 }
 
@@ -219,11 +230,17 @@ export async function POST(request: Request) {
                             await evolution.sendText(instanceName, destJid, mensagemConvertida)
                         }
                     } catch (err) {
-                        console.error('Falha ao retransmitir para destino VIP:', err)
+                        console.error(`[WEBHOOK TRACE] Falha ao enviar ao destino ${destJid}:`, err)
                     }
                 }
+            } else {
+                console.log(`[WEBHOOK TRACE] Nenhum grupo de destino encontrado. (is_monitored=true, is_destination=true)`)
             }
+        } else {
+            console.log(`[WEBHOOK TRACE] O link '${links[0]}' não combina com as expressões regulares da Shopee, Amazon ou ML.`)
         }
+    } else {
+        console.log(`[WEBHOOK TRACE] Falha no Pipeline: Sessão '${instanceName}' não encontrada no Banco de Dados.`)
     }
 
     return NextResponse.json({ status: 'ok' })
