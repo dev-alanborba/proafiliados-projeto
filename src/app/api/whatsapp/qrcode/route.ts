@@ -31,7 +31,8 @@ export async function GET() {
 
             // Set Webhook for the instance
             const webhookSecret = process.env.WEBHOOK_SECRET || ''
-            const webhookUrl = `https://proafiliados-projeto-ww21.vercel.app/api/webhook?secret=${webhookSecret}`
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}` || 'http://localhost:3000'
+            const webhookUrl = `${appUrl}/api/webhook?secret=${webhookSecret}`
             await evolution.setWebhook(instanceName, webhookUrl)
             console.log(`[WhatsApp] Webhook configured for instance ${instanceName}`)
         } catch (err) {
@@ -63,15 +64,16 @@ export async function GET() {
         }
 
         return NextResponse.json(qrData)
-    } catch (err: any) {
+    } catch (err: unknown) {
         // If Evolution API returns 404 for the instance, it means it doesn't exist there
         // even though it's in our Supabase DB. We should recreate it.
-        if (err.response?.status === 404) {
+        if ((err as { response?: { status?: number } }).response?.status === 404) {
             console.log(`[WhatsApp] Instance ${instanceName} not found on server. Recreating...`)
             try {
                 await evolution.createInstance(instanceName)
                 const webhookSecret = process.env.WEBHOOK_SECRET || ''
-                const webhookUrl = `https://proafiliados-projeto-ww21.vercel.app/api/webhook?secret=${webhookSecret}`
+                const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}` || 'http://localhost:3000'
+            const webhookUrl = `${appUrl}/api/webhook?secret=${webhookSecret}`
                 await evolution.setWebhook(instanceName, webhookUrl)
                 console.log(`[WhatsApp] Instance ${instanceName} recreated and webhook set. Fetching QR again.`)
                 const newQrData = await evolution.getQrCode(instanceName)

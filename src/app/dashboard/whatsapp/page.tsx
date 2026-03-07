@@ -59,6 +59,7 @@ export default function WhatsAppPage() {
         }
     }, [])
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => { fetchQr() }, [fetchQr])
 
     useEffect(() => {
@@ -66,6 +67,7 @@ export default function WhatsAppPage() {
             const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
             return () => clearTimeout(timer)
         } else if (countdown === 0 && status === 'disconnected') {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setToast({ message: 'QR Code expirado. Gerando novo código...', type: 'info' })
             fetchQr()
         }

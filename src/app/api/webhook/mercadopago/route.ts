@@ -2,21 +2,20 @@ import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { createClient } from '@supabase/supabase-js';
 
-// Initializes the Mercado Pago client
-const client = new MercadoPagoConfig({ accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || '' });
-
-// Initializes Supabase Admin Client to bypass RLS in the Webhook Context
-// Note: Webhooks run server-side without an active User auth session
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for the Mercado Pago webhook handler.');
-}
-
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 export async function POST(request: Request) {
+    // Validate required env vars at request time, not module load time
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceRoleKey) {
+        console.error('SUPABASE_SERVICE_ROLE_KEY is not set.')
+        return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
+    const client = new MercadoPagoConfig({ accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || '' });
+    const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        serviceRoleKey
+    );
+
     try {
         const url = new URL(request.url);
         const action = url.searchParams.get('type') || url.searchParams.get('topic');

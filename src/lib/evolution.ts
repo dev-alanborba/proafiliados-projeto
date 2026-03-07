@@ -122,7 +122,7 @@ export const evolution = {
     },
 
     // Method to get base64 media from intercepted message
-    getBase64Media: async (instanceName: string, messageData: any) => {
+    getBase64Media: async (instanceName: string, messageData: Record<string, unknown>) => {
         validateInstanceName(instanceName)
         const { data } = await evolutionApi.post(`/chat/getBase64FromMediaMessage/${instanceName}`, {
             message: messageData
@@ -147,7 +147,7 @@ export const evolution = {
             // Evolution v2 endpoint
             const { data } = await evolutionApi.post(`/webhook/instance/${instanceName}`, payload)
             return data
-        } catch (err) {
+        } catch {
             // Fallback to v1 endpoint
             const { data } = await evolutionApi.post(`/webhook/set/${instanceName}`, {
                 webhook: { ...payload.webhook, base64: true, byEvents: false }

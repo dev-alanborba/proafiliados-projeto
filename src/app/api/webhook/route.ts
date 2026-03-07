@@ -3,12 +3,6 @@ import { NextResponse } from 'next/server'
 
 import { evolution } from '@/lib/evolution'
 
-// Create a global admin client to bypass RLS for webhook background processing
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-)
-
 // Regex for common affiliate platforms
 const AFFILIATE_PATTERNS = [
     { name: 'Shopee', pattern: /shopee\.com\.br|shope\.ee/i },
@@ -16,8 +10,14 @@ const AFFILIATE_PATTERNS = [
     { name: 'Amazon', pattern: /amzn\.to|amazon\.com\.br/i },
 ]
 
+interface AffiliateConfig {
+    shopee_app_id?: string | null
+    amazon_tag?: string | null
+    mercadolivre_id?: string | null
+}
+
 // Simulador de conversão local do robô
-function converteLinkParaAfiliado(urlOriginal: string, config: any, plataforma: string): string {
+function converteLinkParaAfiliado(urlOriginal: string, config: AffiliateConfig, plataforma: string): string {
     try {
         const url = new URL(urlOriginal.startsWith('http') ? urlOriginal : `https://${urlOriginal}`)
 
@@ -40,6 +40,12 @@ function converteLinkParaAfiliado(urlOriginal: string, config: any, plataforma: 
 }
 
 export async function POST(request: Request) {
+    // Create admin client per-request to avoid module-level throws during build
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    )
+
     // Webhook secret is required
     const webhookSecret = process.env.WEBHOOK_SECRET
     if (!webhookSecret) {
@@ -97,9 +103,9 @@ export async function POST(request: Request) {
 
     const content = message.conversation ||
         message.extendedTextMessage?.text ||
-        (message.imageMessage as any)?.caption ||
-        (message.videoMessage as any)?.caption ||
-        (message.documentMessage as any)?.caption ||
+        (message.imageMessage as { caption?: string })?.caption ||
+        (message.videoMessage as { caption?: string })?.caption ||
+        (message.documentMessage as { caption?: string })?.caption ||
         '';
     const senderName = messageData.pushName ?? 'unknown'
     const senderNumber = messageData.key.remoteJid.split('@')[0]
@@ -112,8 +118,10 @@ export async function POST(request: Request) {
     const urlRegex = /(https?:\/\/[^\s]+)/g
     const links = content.match(urlRegex)
 
+    if (!links || links.length === 0) return NextResponse.json({ status: 'no_links' })
+
     // Localiza de qual sessão veio este webhook
-    const { data: session, error: sessionErr } = await supabase
+    const { data: session } = await supabase
         .from('sessions')
         .select('id, user_id')
         .eq('instance_name', instanceName)
